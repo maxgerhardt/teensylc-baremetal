@@ -1,0 +1,50 @@
+
+Bare-Metal Teensy LC toolchain
+--------------------------------
+
+Type "make" to compile the sample main.cpp program.  Next,
+type "make burn" to load the resulting hex file into your
+Teensy LC using the cli teensy loader.  The program
+turns on the Teensy LC LED.
+
+The makefile will link together all source files (.c, .S, and .cpp)
+found in the working directory into one hex file.  This hex file
+is named after the TARGET variable given in the makefile.
+
+A sample main.c version of the main.cpp file in the repo
+is given below.
+
+
+     #include "kinetis.h"
+
+     #define LED  (1U << 5)
+
+     int main(void)
+     {
+         SIM_SCGC5 = SIM_SCGC5_PORTC;
+         PORTC_PCR5 = PORT_PCR_MUX(1U);
+         GPIOC_PDDR |= LED;
+         GPIOC_PSOR = LED;
+         return 0;
+     }
+
+
+Remember, you must ensure any port used has its clock line enabled. 
+For example, with main.cpp the clock line for port c must be enabled 
+in order to light the LED.  The toolchain code does not enable
+any clock lines.
+
+The following files were copied from the Teensyduino plugin.
+
+     kinetis.h
+     makefile (modified)
+     mk20dx128.c (modified)
+     mk20dx128.h
+     mkl26z64.ld
+
+- George
+
+Copyright (c) 2016 roseengineering 
+
+
+
