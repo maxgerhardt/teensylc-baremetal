@@ -30,13 +30,6 @@
 
 #include "kinetis.h"
 
-/*
---- roseengineering --- disable
-#include "core_pins.h" // testing only
-#include "ser_print.h" // testing only
-*/
-
-
 // Flash Security Setting. On Teensy 3.2, you can lock the MK20 chip to prevent
 // anyone from reading your code.  You CAN still reprogram your Teensy while
 // security is set, but the bootloader will be unable to respond to auto-reboot
@@ -54,7 +47,6 @@
 // Flash Options
 #define FOPT 0xF9
 
-
 extern unsigned long _stext;
 extern unsigned long _etext;
 extern unsigned long _sdata;
@@ -62,93 +54,32 @@ extern unsigned long _edata;
 extern unsigned long _sbss;
 extern unsigned long _ebss;
 extern unsigned long _estack;
-//extern void __init_array_start(void);
-//extern void __init_array_end(void);
 
 
-
-extern int main (void);
+// should reset handler exit, the hard_fault_isr will be called
 void ResetHandler(void);
-void _init_Teensyduino_internal_(void);
-void __libc_init_array(void);
+extern int main (void);
 
+void init_data_bss()
+{
+    unsigned int *src, *dest, *dend;
+    src  = (unsigned int *)(&_etext);
+    dest = (unsigned int *)(&_sdata);
+    dend = (unsigned int *)(&_edata);
+    while (dest < dend) *(dest++) = *(src++);
+    dest = (unsigned int *)(&_sbss);
+    dend = (unsigned int *)(&_ebss);
+    while (dest < dend) *(dest++) = 0;
+}
 
 void fault_isr(void)
 {
-#if 0
-	uint32_t addr;
-
-	SIM_SCGC4 |= 0x00000400;
-	UART0_BDH = 0;
-	UART0_BDL = 26; // 115200 at 48 MHz
-	UART0_C2 = UART_C2_TE;
-	PORTB_PCR17 = PORT_PCR_MUX(3);
-	ser_print("\nfault: \n??: ");
-        asm("ldr %0, [sp, #52]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\n??: ");
-        asm("ldr %0, [sp, #48]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\n??: ");
-        asm("ldr %0, [sp, #44]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\npsr:");
-        asm("ldr %0, [sp, #40]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\nadr:");
-        asm("ldr %0, [sp, #36]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\nlr: ");
-        asm("ldr %0, [sp, #32]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\nr12:");
-        asm("ldr %0, [sp, #28]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\nr3: ");
-        asm("ldr %0, [sp, #24]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\nr2: ");
-        asm("ldr %0, [sp, #20]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\nr1: ");
-        asm("ldr %0, [sp, #16]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\nr0: ");
-        asm("ldr %0, [sp, #12]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\nr4: ");
-        asm("ldr %0, [sp, #8]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\nlr: ");
-        asm("ldr %0, [sp, #4]" : "=r" (addr) ::);
-        ser_print_hex32(addr);
-        ser_print("\n");
-        asm("ldr %0, [sp, #0]" : "=r" (addr) ::);
-#endif
-	while (1) {
-		// keep polling some communication while in fault
-		// mode, so we don't completely die.
-		if (SIM_SCGC4 & SIM_SCGC4_USBOTG) usb_isr();
-		if (SIM_SCGC4 & SIM_SCGC4_UART0) uart0_status_isr();
-		if (SIM_SCGC4 & SIM_SCGC4_UART1) uart1_status_isr();
-		if (SIM_SCGC4 & SIM_SCGC4_UART2) uart2_status_isr();
-	}
+	while (1) ;
 }
 
 void unused_isr(void)
 {
 	fault_isr();
-}
-
-/*
---- roseengineering --- disable
-extern volatile uint32_t systick_millis_count;
-*/
-
-volatile uint32_t systick_millis_count;
-void systick_default_isr(void)
-{
-	systick_millis_count++;
 }
 
 void nmi_isr(void)		__attribute__ ((weak, alias("unused_isr")));
@@ -159,7 +90,7 @@ void usage_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
 void svcall_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void debugmonitor_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void pendablesrvreq_isr(void)	__attribute__ ((weak, alias("unused_isr")));
-void systick_isr(void)		__attribute__ ((weak, alias("systick_default_isr")));
+void systick_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 
 void dma_ch0_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void dma_ch1_isr(void)		__attribute__ ((weak, alias("unused_isr")));
@@ -664,23 +595,11 @@ void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void) =
 #endif
 };
 
-
 __attribute__ ((section(".flashconfig"), used))
 const uint8_t flashconfigbytes[16] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 	0xFF, 0xFF, 0xFF, 0xFF, FSEC, FOPT, 0xFF, 0xFF
 };
-
-
-// Automatically initialize the RTC.  When the build defines the compile
-// time, and the user has added a crystal, the RTC will automatically
-// begin at the time of the first upload.
-#ifndef TIME_T
-#define TIME_T 1349049600 // default 1 Oct 2012 (never used, Arduino sets this)
-#endif
-extern void *__rtc_localtime; // Arduino build process sets this
-extern void rtc_set(unsigned long t);
-
 
 static void startup_default_early_hook(void) {
 #if defined(KINETISK)
@@ -737,14 +656,6 @@ void ResetHandler(void)
 	//GPIOC_PSOR = (1<<5);
 	//while (1);
 #elif defined(__MKL26Z64__)
-
-        /*
-        --- roseengineering --- disable
-	SIM_SCGC4 = SIM_SCGC4_USBOTG | 0xF0000030;
-	SIM_SCGC5 = 0x00003F82;		// clocks active to all GPIO
-	SIM_SCGC6 = SIM_SCGC6_ADC0 | SIM_SCGC6_TPM0 | SIM_SCGC6_TPM1 | SIM_SCGC6_TPM2 | SIM_SCGC6_FTFL;
-        */
-
 #endif
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 	SCB_CPACR = 0x00F00000;
@@ -1108,11 +1019,6 @@ void ResetHandler(void)
 	//init_pins();
 	__enable_irq();
 
-        /*
-        ---- roseengineering
-	_init_Teensyduino_internal_();
-        */
-
 #if defined(KINETISK)
 	// RTC initialization
 	if (RTC_SR & RTC_SR_TIF) {
@@ -1145,97 +1051,10 @@ void ResetHandler(void)
 	}
 #endif
 
-	__libc_init_array();
+	// __libc_init_array();
 
 	startup_late_hook();
 	main();
-	while (1) ;
 }
 
-char *__brkval = (char *)&_ebss;
-
-void * _sbrk(int incr)
-{
-	char *prev = __brkval;
-	__brkval += incr;
-	return prev;
-}
-
-__attribute__((weak)) 
-int _read(int file, char *ptr, int len)
-{
-	return 0;
-}
-
-__attribute__((weak)) 
-int _close(int fd)
-{
-	return -1;
-}
-
-#include <sys/stat.h>
-
-__attribute__((weak)) 
-int _fstat(int fd, struct stat *st)
-{
-	st->st_mode = S_IFCHR;
-	return 0;
-}
-
-__attribute__((weak)) 
-int _isatty(int fd)
-{
-	return 1;
-}
-
-__attribute__((weak)) 
-int _lseek(int fd, long long offset, int whence)
-{
-	return -1;
-}
-
-__attribute__((weak)) 
-void _exit(int status)
-{
-	while (1);
-}
-
-__attribute__((weak)) 
-void __cxa_pure_virtual()
-{
-	while (1);
-}
-
-__attribute__((weak)) 
-int __cxa_guard_acquire (char *g) 
-{
-	return !(*g);
-}
-
-__attribute__((weak)) 
-void __cxa_guard_release(char *g)
-{
-	*g = 1;
-}
-
-int nvic_execution_priority(void)
-{
-	int priority=256;
-	uint32_t primask, faultmask, basepri, ipsr;
-
-	// full algorithm in ARM DDI0403D, page B1-639
-	// this isn't quite complete, but hopefully good enough
-	__asm__ volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
-	if (faultmask) return -1;
-	__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
-	if (primask) return 0;
-	__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
-	if (ipsr) {
-		if (ipsr < 16) priority = 0; // could be non-zero
-		else priority = NVIC_GET_PRIORITY(ipsr - 16);
-	}
-	__asm__ volatile("mrs %0, basepri\n" : "=r" (basepri)::);
-	if (basepri > 0 && basepri < priority) priority = basepri;
-	return priority;
-}
 

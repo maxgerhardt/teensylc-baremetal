@@ -5,18 +5,18 @@ main.elf:     file format elf32-littlearm
 Disassembly of section .text:
 
 00000000 <_VectorsFlash>:
-   0:	00 18 00 20 c1 00 00 00 09 05 00 00 d5 04 00 00     ... ............
-  10:	d5 04 00 00 d5 04 00 00 d5 04 00 00 d5 04 00 00     ................
-  20:	d5 04 00 00 d5 04 00 00 d5 04 00 00 09 05 00 00     ................
-  30:	09 05 00 00 d5 04 00 00 09 05 00 00 c5 04 00 00     ................
-  40:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
-  50:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
-  60:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
-  70:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
-  80:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
-  90:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
-  a0:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
-  b0:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
+   0:	00 18 00 20 c1 00 00 00 c7 04 00 00 c5 04 00 00     ... ............
+  10:	c5 04 00 00 c5 04 00 00 c5 04 00 00 c5 04 00 00     ................
+  20:	c5 04 00 00 c5 04 00 00 c5 04 00 00 c7 04 00 00     ................
+  30:	c7 04 00 00 c5 04 00 00 c7 04 00 00 c7 04 00 00     ................
+  40:	c7 04 00 00 c7 04 00 00 c7 04 00 00 c7 04 00 00     ................
+  50:	c7 04 00 00 c7 04 00 00 c7 04 00 00 c7 04 00 00     ................
+  60:	c7 04 00 00 c7 04 00 00 c7 04 00 00 c7 04 00 00     ................
+  70:	c7 04 00 00 c7 04 00 00 c7 04 00 00 c7 04 00 00     ................
+  80:	c7 04 00 00 c7 04 00 00 c7 04 00 00 c7 04 00 00     ................
+  90:	c7 04 00 00 c7 04 00 00 c7 04 00 00 c7 04 00 00     ................
+  a0:	c7 04 00 00 c7 04 00 00 c7 04 00 00 c7 04 00 00     ................
+  b0:	c7 04 00 00 c7 04 00 00 c7 04 00 00 c7 04 00 00     ................
 
 000000c0 <ResetHandler>:
 __attribute__ ((optimize("-Os")))
@@ -32,7 +32,7 @@ void ResetHandler(void)
 	// programs using the watchdog timer or needing to initialize hardware as
 	// early as possible can implement startup_early_hook()
 	startup_early_hook();
-  c2:	f000 fa24 	bl	50e <startup_early_hook>
+  c2:	f000 fa1f 	bl	504 <startup_early_hook>
 		RTC_SR = 0;
 		RTC_CR = RTC_CR_SC16P | RTC_CR_SC4P | RTC_CR_OSCE;
 	}
@@ -40,7 +40,7 @@ void ResetHandler(void)
 	// release I/O pins hold, if we woke up from VLLS mode
 	if (PMC_REGSC & PMC_REGSC_ACKISO) PMC_REGSC |= PMC_REGSC_ACKISO;
   c6:	2108      	movs	r1, #8
-  c8:	4b41      	ldr	r3, [pc, #260]	; (1d0 <ResetHandler+0x110>)
+  c8:	4b40      	ldr	r3, [pc, #256]	; (1cc <ResetHandler+0x10c>)
   ca:	781a      	ldrb	r2, [r3, #0]
   cc:	420a      	tst	r2, r1
   ce:	d002      	beq.n	d6 <ResetHandler+0x16>
@@ -54,16 +54,16 @@ void ResetHandler(void)
 #else
 	SMC_PMPROT = SMC_PMPROT_AVLP | SMC_PMPROT_ALLS | SMC_PMPROT_AVLLS;
   d6:	222a      	movs	r2, #42	; 0x2a
-  d8:	4b3e      	ldr	r3, [pc, #248]	; (1d4 <ResetHandler+0x114>)
-  da:	483f      	ldr	r0, [pc, #252]	; (1d8 <ResetHandler+0x118>)
+  d8:	4b3d      	ldr	r3, [pc, #244]	; (1d0 <ResetHandler+0x110>)
+  da:	483e      	ldr	r0, [pc, #248]	; (1d4 <ResetHandler+0x114>)
   dc:	701a      	strb	r2, [r3, #0]
 #endif
     
 	// TODO: do this while the PLL is waiting to lock....
 	while (dest < &_edata) *dest++ = *src++;
   de:	2300      	movs	r3, #0
-  e0:	493e      	ldr	r1, [pc, #248]	; (1dc <ResetHandler+0x11c>)
-  e2:	4c3f      	ldr	r4, [pc, #252]	; (1e0 <ResetHandler+0x120>)
+  e0:	493d      	ldr	r1, [pc, #244]	; (1d8 <ResetHandler+0x118>)
+  e2:	4c3e      	ldr	r4, [pc, #248]	; (1dc <ResetHandler+0x11c>)
   e4:	181a      	adds	r2, r3, r0
   e6:	428a      	cmp	r2, r1
   e8:	d203      	bcs.n	f2 <ResetHandler+0x32>
@@ -72,10 +72,10 @@ void ResetHandler(void)
   ee:	6015      	str	r5, [r2, #0]
   f0:	e7f8      	b.n	e4 <ResetHandler+0x24>
   f2:	2100      	movs	r1, #0
-  f4:	4b3b      	ldr	r3, [pc, #236]	; (1e4 <ResetHandler+0x124>)
+  f4:	4b3a      	ldr	r3, [pc, #232]	; (1e0 <ResetHandler+0x120>)
 	dest = &_sbss;
 	while (dest < &_ebss) *dest++ = 0;
-  f6:	4a3c      	ldr	r2, [pc, #240]	; (1e8 <ResetHandler+0x128>)
+  f6:	4a3b      	ldr	r2, [pc, #236]	; (1e4 <ResetHandler+0x124>)
   f8:	4293      	cmp	r3, r2
   fa:	d201      	bcs.n	100 <ResetHandler+0x40>
   fc:	c302      	stmia	r3!, {r1}
@@ -84,8 +84,8 @@ void ResetHandler(void)
 
 	// default all interrupts to medium priority level
 	for (i=0; i < NVIC_NUM_INTERRUPTS + 16; i++) _VectorsRam[i] = _VectorsFlash[i];
- 102:	4a3a      	ldr	r2, [pc, #232]	; (1ec <ResetHandler+0x12c>)
- 104:	493a      	ldr	r1, [pc, #232]	; (1f0 <ResetHandler+0x130>)
+ 102:	4a39      	ldr	r2, [pc, #228]	; (1e8 <ResetHandler+0x128>)
+ 104:	4939      	ldr	r1, [pc, #228]	; (1ec <ResetHandler+0x12c>)
  106:	5858      	ldr	r0, [r3, r1]
  108:	4694      	mov	ip, r2
  10a:	5098      	str	r0, [r3, r2]
@@ -98,7 +98,7 @@ void ResetHandler(void)
  116:	25ff      	movs	r5, #255	; 0xff
  118:	2480      	movs	r4, #128	; 0x80
  11a:	088a      	lsrs	r2, r1, #2
- 11c:	4b35      	ldr	r3, [pc, #212]	; (1f4 <ResetHandler+0x134>)
+ 11c:	4b34      	ldr	r3, [pc, #208]	; (1f0 <ResetHandler+0x130>)
  11e:	0092      	lsls	r2, r2, #2
  120:	18d2      	adds	r2, r2, r3
  122:	1c0b      	adds	r3, r1, #0
@@ -119,7 +119,7 @@ void ResetHandler(void)
  140:	d1eb      	bne.n	11a <ResetHandler+0x5a>
 	SCB_VTOR = (uint32_t)_VectorsRam;	// use vector table in RAM
  142:	4662      	mov	r2, ip
- 144:	4b2c      	ldr	r3, [pc, #176]	; (1f8 <ResetHandler+0x138>)
+ 144:	4b2b      	ldr	r3, [pc, #172]	; (1f4 <ResetHandler+0x134>)
  146:	601a      	str	r2, [r3, #0]
     #if defined(KINETISK)
     // enable capacitors for crystal
@@ -128,12 +128,12 @@ void ResetHandler(void)
     // enable capacitors for crystal
     OSC0_CR = OSC_SC8P | OSC_SC2P | OSC_ERCLKEN;
  148:	228a      	movs	r2, #138	; 0x8a
- 14a:	4b2c      	ldr	r3, [pc, #176]	; (1fc <ResetHandler+0x13c>)
+ 14a:	4b2b      	ldr	r3, [pc, #172]	; (1f8 <ResetHandler+0x138>)
  14c:	701a      	strb	r2, [r3, #0]
     #endif
 	// enable osc, 8-32 MHz range, low power mode
 	MCG_C2 = MCG_C2_RANGE0(2) | MCG_C2_EREFS;
- 14e:	4b2c      	ldr	r3, [pc, #176]	; (200 <ResetHandler+0x140>)
+ 14e:	4b2b      	ldr	r3, [pc, #172]	; (1fc <ResetHandler+0x13c>)
  150:	3a66      	subs	r2, #102	; 0x66
  152:	705a      	strb	r2, [r3, #1]
 	// switch to crystal as clock source, FLL input = 16 MHz / 512
@@ -156,7 +156,7 @@ void ResetHandler(void)
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)) ;
  168:	200c      	movs	r0, #12
  16a:	799a      	ldrb	r2, [r3, #6]
- 16c:	4924      	ldr	r1, [pc, #144]	; (200 <ResetHandler+0x140>)
+ 16c:	4923      	ldr	r1, [pc, #140]	; (1fc <ResetHandler+0x13c>)
  16e:	4002      	ands	r2, r0
  170:	2a08      	cmp	r2, #8
  172:	d1fa      	bne.n	16a <ResetHandler+0xaa>
@@ -198,8 +198,8 @@ void ResetHandler(void)
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1);
   #elif defined(KINETISL)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV4(1);
- 18c:	491d      	ldr	r1, [pc, #116]	; (204 <ResetHandler+0x144>)
- 18e:	4a1e      	ldr	r2, [pc, #120]	; (208 <ResetHandler+0x148>)
+ 18c:	491c      	ldr	r1, [pc, #112]	; (200 <ResetHandler+0x140>)
+ 18e:	4a1d      	ldr	r2, [pc, #116]	; (204 <ResetHandler+0x144>)
  190:	6011      	str	r1, [r2, #0]
 #error "Error, F_CPU must be 192, 180, 168, 144, 120, 96, 72, 48, 24, 16, 8, 4, or 2 MHz"
 #endif
@@ -208,7 +208,7 @@ void ResetHandler(void)
 	// switch to PLL as clock source, FLL input = 16 MHz / 512
 	MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
  192:	2120      	movs	r1, #32
- 194:	4a1a      	ldr	r2, [pc, #104]	; (200 <ResetHandler+0x140>)
+ 194:	4a19      	ldr	r2, [pc, #100]	; (1fc <ResetHandler+0x13c>)
  196:	7011      	strb	r1, [r2, #0]
 	// wait for PLL clock to be used
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
@@ -223,8 +223,8 @@ void ResetHandler(void)
 	#endif
 	#elif defined(KINETISL)
 	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_CLKOUTSEL(6)
- 1a2:	4a1a      	ldr	r2, [pc, #104]	; (20c <ResetHandler+0x14c>)
- 1a4:	4b1a      	ldr	r3, [pc, #104]	; (210 <ResetHandler+0x150>)
+ 1a2:	4a19      	ldr	r2, [pc, #100]	; (208 <ResetHandler+0x148>)
+ 1a4:	4b19      	ldr	r3, [pc, #100]	; (20c <ResetHandler+0x14c>)
  1a6:	601a      	str	r2, [r3, #0]
     // since we are not going into "stop mode" i removed it
 	SMC_PMCTRL = SMC_PMCTRL_RUNM(2); // VLPR mode :-)
@@ -232,62 +232,60 @@ void ResetHandler(void)
 
 	// initialize the SysTick counter
 	SYST_RVR = (F_CPU / 1000) - 1;
- 1a8:	4a1a      	ldr	r2, [pc, #104]	; (214 <ResetHandler+0x154>)
- 1aa:	4b1b      	ldr	r3, [pc, #108]	; (218 <ResetHandler+0x158>)
+ 1a8:	4a19      	ldr	r2, [pc, #100]	; (210 <ResetHandler+0x150>)
+ 1aa:	4b1a      	ldr	r3, [pc, #104]	; (214 <ResetHandler+0x154>)
  1ac:	601a      	str	r2, [r3, #0]
 	SYST_CVR = 0;
  1ae:	2200      	movs	r2, #0
- 1b0:	4b1a      	ldr	r3, [pc, #104]	; (21c <ResetHandler+0x15c>)
+ 1b0:	4b19      	ldr	r3, [pc, #100]	; (218 <ResetHandler+0x158>)
  1b2:	601a      	str	r2, [r3, #0]
 	SYST_CSR = SYST_CSR_CLKSOURCE | SYST_CSR_TICKINT | SYST_CSR_ENABLE;
- 1b4:	4b1a      	ldr	r3, [pc, #104]	; (220 <ResetHandler+0x160>)
+ 1b4:	4b19      	ldr	r3, [pc, #100]	; (21c <ResetHandler+0x15c>)
  1b6:	3207      	adds	r2, #7
  1b8:	601a      	str	r2, [r3, #0]
 	SCB_SHPR3 = 0x20200000;  // Systick = priority 32
- 1ba:	4a1a      	ldr	r2, [pc, #104]	; (224 <ResetHandler+0x164>)
- 1bc:	4b1a      	ldr	r3, [pc, #104]	; (228 <ResetHandler+0x168>)
+ 1ba:	4a19      	ldr	r2, [pc, #100]	; (220 <ResetHandler+0x160>)
+ 1bc:	4b19      	ldr	r3, [pc, #100]	; (224 <ResetHandler+0x164>)
  1be:	601a      	str	r2, [r3, #0]
 
 	//init_pins();
 	__enable_irq();
  1c0:	b662      	cpsie	i
-		#endif
-		*(uint32_t *)0x4003E01C = 0;
 	}
 #endif
 
-	__libc_init_array();
- 1c2:	f000 fa15 	bl	5f0 <__libc_init_array>
+	// __libc_init_array();
 
 	startup_late_hook();
- 1c6:	f000 f9a9 	bl	51c <startup_late_hook>
+ 1c2:	f000 f9a5 	bl	510 <startup_late_hook>
 	main();
- 1ca:	f000 f9f7 	bl	5bc <main>
-	while (1) ;
- 1ce:	e7fe      	b.n	1ce <ResetHandler+0x10e>
- 1d0:	4007d002 	.word	0x4007d002
- 1d4:	4007e000 	.word	0x4007e000
+ 1c6:	f000 f9a5 	bl	514 <main>
+}
+ 1ca:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+ 1cc:	4007d002 	.word	0x4007d002
+ 1d0:	4007e000 	.word	0x4007e000
+ 1d4:	1ffff8c0 	.word	0x1ffff8c0
  1d8:	1ffff8c0 	.word	0x1ffff8c0
- 1dc:	1ffff8c4 	.word	0x1ffff8c4
- 1e0:	00000650 	.word	0x00000650
- 1e4:	1ffff8c4 	.word	0x1ffff8c4
- 1e8:	1ffff8e4 	.word	0x1ffff8e4
- 1ec:	1ffff800 	.word	0x1ffff800
- 1f0:	00000000 	.word	0x00000000
- 1f4:	e000e400 	.word	0xe000e400
- 1f8:	e000ed08 	.word	0xe000ed08
- 1fc:	40065000 	.word	0x40065000
- 200:	40064000 	.word	0x40064000
- 204:	10010000 	.word	0x10010000
- 208:	40048044 	.word	0x40048044
- 20c:	050500c0 	.word	0x050500c0
- 210:	40048004 	.word	0x40048004
- 214:	0000bb7f 	.word	0x0000bb7f
- 218:	e000e014 	.word	0xe000e014
- 21c:	e000e018 	.word	0xe000e018
- 220:	e000e010 	.word	0xe000e010
- 224:	20200000 	.word	0x20200000
- 228:	e000ed20 	.word	0xe000ed20
+ 1dc:	0000055c 	.word	0x0000055c
+ 1e0:	1ffff8c0 	.word	0x1ffff8c0
+ 1e4:	1ffff8dc 	.word	0x1ffff8dc
+ 1e8:	1ffff800 	.word	0x1ffff800
+ 1ec:	00000000 	.word	0x00000000
+ 1f0:	e000e400 	.word	0xe000e400
+ 1f4:	e000ed08 	.word	0xe000ed08
+ 1f8:	40065000 	.word	0x40065000
+ 1fc:	40064000 	.word	0x40064000
+ 200:	10010000 	.word	0x10010000
+ 204:	40048044 	.word	0x40048044
+ 208:	050500c0 	.word	0x050500c0
+ 20c:	40048004 	.word	0x40048004
+ 210:	0000bb7f 	.word	0x0000bb7f
+ 214:	e000e014 	.word	0xe000e014
+ 218:	e000e018 	.word	0xe000e018
+ 21c:	e000e010 	.word	0xe000e010
+ 220:	20200000 	.word	0x20200000
+ 224:	e000ed20 	.word	0xe000ed20
+ 228:	ffffffff 	.word	0xffffffff
  22c:	ffffffff 	.word	0xffffffff
  230:	ffffffff 	.word	0xffffffff
  234:	ffffffff 	.word	0xffffffff
@@ -422,8 +420,8 @@ void ResetHandler(void)
  422:	d000      	beq.n	426 <deregister_tm_clones+0x16>
  424:	4798      	blx	r3
  426:	bd08      	pop	{r3, pc}
- 428:	1ffff8c4 	.word	0x1ffff8c4
- 42c:	1ffff8c4 	.word	0x1ffff8c4
+ 428:	1ffff8c0 	.word	0x1ffff8c0
+ 42c:	1ffff8c0 	.word	0x1ffff8c0
  430:	00000000 	.word	0x00000000
 
 00000434 <register_tm_clones>:
@@ -441,8 +439,8 @@ void ResetHandler(void)
  44a:	d000      	beq.n	44e <register_tm_clones+0x1a>
  44c:	4798      	blx	r3
  44e:	bd08      	pop	{r3, pc}
- 450:	1ffff8c4 	.word	0x1ffff8c4
- 454:	1ffff8c4 	.word	0x1ffff8c4
+ 450:	1ffff8c0 	.word	0x1ffff8c0
+ 454:	1ffff8c0 	.word	0x1ffff8c0
  458:	00000000 	.word	0x00000000
 
 0000045c <__do_global_dtors_aux>:
@@ -461,9 +459,9 @@ void ResetHandler(void)
  476:	2301      	movs	r3, #1
  478:	7023      	strb	r3, [r4, #0]
  47a:	bd10      	pop	{r4, pc}
- 47c:	1ffff8c4 	.word	0x1ffff8c4
+ 47c:	1ffff8c0 	.word	0x1ffff8c0
  480:	00000000 	.word	0x00000000
- 484:	00000650 	.word	0x00000650
+ 484:	0000055c 	.word	0x0000055c
 
 00000488 <frame_dummy>:
  488:	b508      	push	{r3, lr}
@@ -486,398 +484,145 @@ void ResetHandler(void)
  4ac:	4798      	blx	r3
  4ae:	e7f7      	b.n	4a0 <frame_dummy+0x18>
  4b0:	00000000 	.word	0x00000000
- 4b4:	00000650 	.word	0x00000650
- 4b8:	1ffff8c8 	.word	0x1ffff8c8
- 4bc:	1ffff8c4 	.word	0x1ffff8c4
+ 4b4:	0000055c 	.word	0x0000055c
+ 4b8:	1ffff8c4 	.word	0x1ffff8c4
+ 4bc:	1ffff8c0 	.word	0x1ffff8c0
  4c0:	00000000 	.word	0x00000000
 
-000004c4 <systick_default_isr>:
-*/
-
-volatile uint32_t systick_millis_count;
-void systick_default_isr(void)
-{
-	systick_millis_count++;
- 4c4:	4a02      	ldr	r2, [pc, #8]	; (4d0 <systick_default_isr+0xc>)
- 4c6:	6813      	ldr	r3, [r2, #0]
- 4c8:	3301      	adds	r3, #1
- 4ca:	6013      	str	r3, [r2, #0]
+000004c4 <fault_isr>:
+    while (dest < dend) *(dest++) = 0;
 }
- 4cc:	4770      	bx	lr
- 4ce:	46c0      	nop			; (mov r8, r8)
- 4d0:	1ffff8e0 	.word	0x1ffff8e0
-
-000004d4 <fault_isr>:
-void _init_Teensyduino_internal_(void);
-void __libc_init_array(void);
-
 
 void fault_isr(void)
 {
- 4d4:	b510      	push	{r4, lr}
-        asm("ldr %0, [sp, #0]" : "=r" (addr) ::);
-#endif
-	while (1) {
-		// keep polling some communication while in fault
-		// mode, so we don't completely die.
-		if (SIM_SCGC4 & SIM_SCGC4_USBOTG) usb_isr();
- 4d6:	4c0b      	ldr	r4, [pc, #44]	; (504 <fault_isr+0x30>)
- 4d8:	6823      	ldr	r3, [r4, #0]
- 4da:	035b      	lsls	r3, r3, #13
- 4dc:	d501      	bpl.n	4e2 <fault_isr+0xe>
- 4de:	f000 f813 	bl	508 <unused_isr>
-		if (SIM_SCGC4 & SIM_SCGC4_UART0) uart0_status_isr();
- 4e2:	6823      	ldr	r3, [r4, #0]
- 4e4:	055b      	lsls	r3, r3, #21
- 4e6:	d501      	bpl.n	4ec <fault_isr+0x18>
- 4e8:	f000 f80e 	bl	508 <unused_isr>
-		if (SIM_SCGC4 & SIM_SCGC4_UART1) uart1_status_isr();
- 4ec:	6823      	ldr	r3, [r4, #0]
- 4ee:	051b      	lsls	r3, r3, #20
- 4f0:	d501      	bpl.n	4f6 <fault_isr+0x22>
- 4f2:	f000 f809 	bl	508 <unused_isr>
-		if (SIM_SCGC4 & SIM_SCGC4_UART2) uart2_status_isr();
- 4f6:	6823      	ldr	r3, [r4, #0]
- 4f8:	04db      	lsls	r3, r3, #19
- 4fa:	d5ec      	bpl.n	4d6 <fault_isr+0x2>
- 4fc:	f000 f804 	bl	508 <unused_isr>
- 500:	e7e9      	b.n	4d6 <fault_isr+0x2>
- 502:	46c0      	nop			; (mov r8, r8)
- 504:	40048034 	.word	0x40048034
+	while (1) ;
+ 4c4:	e7fe      	b.n	4c4 <fault_isr>
 
-00000508 <unused_isr>:
-	}
+000004c6 <unused_isr>:
 }
 
 void unused_isr(void)
 {
- 508:	b508      	push	{r3, lr}
-	fault_isr();
- 50a:	f7ff ffe3 	bl	4d4 <fault_isr>
+ 4c6:	e7fe      	b.n	4c6 <unused_isr>
 
-0000050e <startup_early_hook>:
+000004c8 <init_data_bss>:
+{
+    unsigned int *src, *dest, *dend;
+    src  = (unsigned int *)(&_etext);
+    dest = (unsigned int *)(&_sdata);
+    dend = (unsigned int *)(&_edata);
+    while (dest < dend) *(dest++) = *(src++);
+ 4c8:	2200      	movs	r2, #0
+ 4ca:	4b09      	ldr	r3, [pc, #36]	; (4f0 <init_data_bss+0x28>)
+ 4cc:	4909      	ldr	r1, [pc, #36]	; (4f4 <init_data_bss+0x2c>)
+ 4ce:	18d3      	adds	r3, r2, r3
+ 4d0:	428b      	cmp	r3, r1
+ 4d2:	d204      	bcs.n	4de <init_data_bss+0x16>
+ 4d4:	4908      	ldr	r1, [pc, #32]	; (4f8 <init_data_bss+0x30>)
+ 4d6:	5889      	ldr	r1, [r1, r2]
+ 4d8:	3204      	adds	r2, #4
+ 4da:	6019      	str	r1, [r3, #0]
+ 4dc:	e7f5      	b.n	4ca <init_data_bss+0x2>
+ 4de:	4b07      	ldr	r3, [pc, #28]	; (4fc <init_data_bss+0x34>)
+    dest = (unsigned int *)(&_sbss);
+    dend = (unsigned int *)(&_ebss);
+    while (dest < dend) *(dest++) = 0;
+ 4e0:	4a07      	ldr	r2, [pc, #28]	; (500 <init_data_bss+0x38>)
+ 4e2:	4293      	cmp	r3, r2
+ 4e4:	d202      	bcs.n	4ec <init_data_bss+0x24>
+ 4e6:	2200      	movs	r2, #0
+ 4e8:	c304      	stmia	r3!, {r2}
+ 4ea:	e7f9      	b.n	4e0 <init_data_bss+0x18>
+}
+ 4ec:	4770      	bx	lr
+ 4ee:	46c0      	nop			; (mov r8, r8)
+ 4f0:	1ffff8c0 	.word	0x1ffff8c0
+ 4f4:	1ffff8c0 	.word	0x1ffff8c0
+ 4f8:	0000055c 	.word	0x0000055c
+ 4fc:	1ffff8c0 	.word	0x1ffff8c0
+ 500:	1ffff8dc 	.word	0x1ffff8dc
+
+00000504 <startup_early_hook>:
 
 static void startup_default_early_hook(void) {
 #if defined(KINETISK)
 	WDOG_STCTRLH = WDOG_STCTRLH_ALLOWUPDATE;
 #elif defined(KINETISL)
 	SIM_COPC = 0;  // disable the watchdog
- 50e:	2200      	movs	r2, #0
- 510:	4b01      	ldr	r3, [pc, #4]	; (518 <startup_early_hook+0xa>)
- 512:	601a      	str	r2, [r3, #0]
+ 504:	2200      	movs	r2, #0
+ 506:	4b01      	ldr	r3, [pc, #4]	; (50c <startup_early_hook+0x8>)
+ 508:	601a      	str	r2, [r3, #0]
 #endif
 }
- 514:	4770      	bx	lr
- 516:	46c0      	nop			; (mov r8, r8)
- 518:	40048100 	.word	0x40048100
+ 50a:	4770      	bx	lr
+ 50c:	40048100 	.word	0x40048100
 
-0000051c <startup_late_hook>:
+00000510 <startup_late_hook>:
 static void startup_default_late_hook(void) {}
- 51c:	4770      	bx	lr
+ 510:	4770      	bx	lr
+ 512:	46c0      	nop			; (mov r8, r8)
 
-0000051e <_sbrk>:
-}
+00000514 <main>:
 
-char *__brkval = (char *)&_ebss;
+#define LED  (1U << 5)
 
-void * _sbrk(int incr)
+extern "C" int main(void)
 {
- 51e:	1c03      	adds	r3, r0, #0
-	char *prev = __brkval;
- 520:	4a02      	ldr	r2, [pc, #8]	; (52c <_sbrk+0xe>)
- 522:	6810      	ldr	r0, [r2, #0]
-	__brkval += incr;
- 524:	18c3      	adds	r3, r0, r3
- 526:	6013      	str	r3, [r2, #0]
-	return prev;
-}
- 528:	4770      	bx	lr
- 52a:	46c0      	nop			; (mov r8, r8)
- 52c:	1ffff8c0 	.word	0x1ffff8c0
+    SIM_SCGC5 = SIM_SCGC5_PORTC;
+ 514:	2280      	movs	r2, #128	; 0x80
+ 516:	4b08      	ldr	r3, [pc, #32]	; (538 <main+0x24>)
+ 518:	0112      	lsls	r2, r2, #4
+ 51a:	601a      	str	r2, [r3, #0]
+    PORTC_PCR5 = PORT_PCR_MUX(1U);
+ 51c:	2280      	movs	r2, #128	; 0x80
+ 51e:	4b07      	ldr	r3, [pc, #28]	; (53c <main+0x28>)
+    GPIOC_PDDR |= LED;
+ 520:	4907      	ldr	r1, [pc, #28]	; (540 <main+0x2c>)
+#define LED  (1U << 5)
 
-00000530 <_read>:
-
-__attribute__((weak)) 
-int _read(int file, char *ptr, int len)
+extern "C" int main(void)
 {
-	return 0;
+    SIM_SCGC5 = SIM_SCGC5_PORTC;
+    PORTC_PCR5 = PORT_PCR_MUX(1U);
+ 522:	0052      	lsls	r2, r2, #1
+ 524:	601a      	str	r2, [r3, #0]
+    GPIOC_PDDR |= LED;
+ 526:	680b      	ldr	r3, [r1, #0]
+ 528:	3ae0      	subs	r2, #224	; 0xe0
+ 52a:	4313      	orrs	r3, r2
+ 52c:	600b      	str	r3, [r1, #0]
+    GPIOC_PSOR = LED;
+ 52e:	4b05      	ldr	r3, [pc, #20]	; (544 <main+0x30>)
 }
  530:	2000      	movs	r0, #0
- 532:	4770      	bx	lr
-
-00000534 <_close>:
-
-__attribute__((weak)) 
-int _close(int fd)
-{
-	return -1;
-}
- 534:	2001      	movs	r0, #1
- 536:	4240      	negs	r0, r0
- 538:	4770      	bx	lr
-
-0000053a <_fstat>:
-#include <sys/stat.h>
-
-__attribute__((weak)) 
-int _fstat(int fd, struct stat *st)
-{
-	st->st_mode = S_IFCHR;
- 53a:	2380      	movs	r3, #128	; 0x80
- 53c:	019b      	lsls	r3, r3, #6
-	return 0;
-}
- 53e:	2000      	movs	r0, #0
-#include <sys/stat.h>
-
-__attribute__((weak)) 
-int _fstat(int fd, struct stat *st)
-{
-	st->st_mode = S_IFCHR;
- 540:	604b      	str	r3, [r1, #4]
-	return 0;
-}
- 542:	4770      	bx	lr
-
-00000544 <_isatty>:
-
-__attribute__((weak)) 
-int _isatty(int fd)
-{
-	return 1;
-}
- 544:	2001      	movs	r0, #1
- 546:	4770      	bx	lr
-
-00000548 <_lseek>:
-
-__attribute__((weak)) 
-int _lseek(int fd, long long offset, int whence)
-{
-	return -1;
-}
- 548:	2001      	movs	r0, #1
- 54a:	4240      	negs	r0, r0
- 54c:	4770      	bx	lr
-
-0000054e <_exit>:
-
-__attribute__((weak)) 
-void _exit(int status)
-{
-	while (1);
- 54e:	e7fe      	b.n	54e <_exit>
-
-00000550 <__cxa_pure_virtual>:
-}
-
-__attribute__((weak)) 
-void __cxa_pure_virtual()
-{
-	while (1);
- 550:	e7fe      	b.n	550 <__cxa_pure_virtual>
-
-00000552 <__cxa_guard_acquire>:
-}
-
-__attribute__((weak)) 
-int __cxa_guard_acquire (char *g) 
-{
-	return !(*g);
- 552:	7800      	ldrb	r0, [r0, #0]
- 554:	4243      	negs	r3, r0
- 556:	4158      	adcs	r0, r3
-}
- 558:	4770      	bx	lr
-
-0000055a <__cxa_guard_release>:
-
-__attribute__((weak)) 
-void __cxa_guard_release(char *g)
-{
-	*g = 1;
- 55a:	2301      	movs	r3, #1
- 55c:	7003      	strb	r3, [r0, #0]
-}
- 55e:	4770      	bx	lr
-
-00000560 <nvic_execution_priority>:
-	int priority=256;
-	uint32_t primask, faultmask, basepri, ipsr;
-
-	// full algorithm in ARM DDI0403D, page B1-639
-	// this isn't quite complete, but hopefully good enough
-	__asm__ volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
- 560:	f3ef 8313 	mrs	r3, FAULTMASK
-	if (faultmask) return -1;
- 564:	2b00      	cmp	r3, #0
- 566:	d123      	bne.n	5b0 <nvic_execution_priority+0x50>
-	__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
- 568:	f3ef 8210 	mrs	r2, PRIMASK
-	if (primask) return 0;
- 56c:	1c18      	adds	r0, r3, #0
- 56e:	2a00      	cmp	r2, #0
- 570:	d120      	bne.n	5b4 <nvic_execution_priority+0x54>
-	__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
- 572:	f3ef 8105 	mrs	r1, IPSR
-	if (ipsr) {
- 576:	2900      	cmp	r1, #0
- 578:	d010      	beq.n	59c <nvic_execution_priority+0x3c>
-		if (ipsr < 16) priority = 0; // could be non-zero
- 57a:	1c10      	adds	r0, r2, #0
- 57c:	290f      	cmp	r1, #15
- 57e:	d90f      	bls.n	5a0 <nvic_execution_priority+0x40>
-		else priority = NVIC_GET_PRIORITY(ipsr - 16);
- 580:	1c0b      	adds	r3, r1, #0
- 582:	3b10      	subs	r3, #16
- 584:	4a0c      	ldr	r2, [pc, #48]	; (5b8 <nvic_execution_priority+0x58>)
- 586:	089b      	lsrs	r3, r3, #2
- 588:	009b      	lsls	r3, r3, #2
- 58a:	189b      	adds	r3, r3, r2
- 58c:	2203      	movs	r2, #3
- 58e:	4011      	ands	r1, r2
- 590:	1c08      	adds	r0, r1, #0
- 592:	4090      	lsls	r0, r2
- 594:	681b      	ldr	r3, [r3, #0]
- 596:	40c3      	lsrs	r3, r0
- 598:	b2d8      	uxtb	r0, r3
- 59a:	e001      	b.n	5a0 <nvic_execution_priority+0x40>
-	*g = 1;
-}
-
-int nvic_execution_priority(void)
-{
-	int priority=256;
- 59c:	2080      	movs	r0, #128	; 0x80
- 59e:	0040      	lsls	r0, r0, #1
-	__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
-	if (ipsr) {
-		if (ipsr < 16) priority = 0; // could be non-zero
-		else priority = NVIC_GET_PRIORITY(ipsr - 16);
-	}
-	__asm__ volatile("mrs %0, basepri\n" : "=r" (basepri)::);
- 5a0:	f3ef 8311 	mrs	r3, BASEPRI
-	if (basepri > 0 && basepri < priority) priority = basepri;
- 5a4:	2b00      	cmp	r3, #0
- 5a6:	d005      	beq.n	5b4 <nvic_execution_priority+0x54>
- 5a8:	4283      	cmp	r3, r0
- 5aa:	d203      	bcs.n	5b4 <nvic_execution_priority+0x54>
- 5ac:	1c18      	adds	r0, r3, #0
- 5ae:	e001      	b.n	5b4 <nvic_execution_priority+0x54>
-	uint32_t primask, faultmask, basepri, ipsr;
-
-	// full algorithm in ARM DDI0403D, page B1-639
-	// this isn't quite complete, but hopefully good enough
-	__asm__ volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
-	if (faultmask) return -1;
- 5b0:	2001      	movs	r0, #1
- 5b2:	4240      	negs	r0, r0
-		else priority = NVIC_GET_PRIORITY(ipsr - 16);
-	}
-	__asm__ volatile("mrs %0, basepri\n" : "=r" (basepri)::);
-	if (basepri > 0 && basepri < priority) priority = basepri;
-	return priority;
-}
- 5b4:	4770      	bx	lr
- 5b6:	46c0      	nop			; (mov r8, r8)
- 5b8:	e000e400 	.word	0xe000e400
-
-000005bc <main>:
-
-#define LED  (1U << 5)
-
-extern "C" int main(void)
-{
-    SIM_SCGC5 = SIM_SCGC5_PORTC;
- 5bc:	2280      	movs	r2, #128	; 0x80
- 5be:	4b08      	ldr	r3, [pc, #32]	; (5e0 <main+0x24>)
- 5c0:	0112      	lsls	r2, r2, #4
- 5c2:	601a      	str	r2, [r3, #0]
-    PORTC_PCR5 = PORT_PCR_MUX(1U);
- 5c4:	2280      	movs	r2, #128	; 0x80
- 5c6:	4b07      	ldr	r3, [pc, #28]	; (5e4 <main+0x28>)
-    GPIOC_PDDR |= LED;
- 5c8:	4907      	ldr	r1, [pc, #28]	; (5e8 <main+0x2c>)
-#define LED  (1U << 5)
-
-extern "C" int main(void)
-{
-    SIM_SCGC5 = SIM_SCGC5_PORTC;
-    PORTC_PCR5 = PORT_PCR_MUX(1U);
- 5ca:	0052      	lsls	r2, r2, #1
- 5cc:	601a      	str	r2, [r3, #0]
-    GPIOC_PDDR |= LED;
- 5ce:	680b      	ldr	r3, [r1, #0]
- 5d0:	3ae0      	subs	r2, #224	; 0xe0
- 5d2:	4313      	orrs	r3, r2
- 5d4:	600b      	str	r3, [r1, #0]
-    GPIOC_PSOR = LED;
- 5d6:	4b05      	ldr	r3, [pc, #20]	; (5ec <main+0x30>)
-}
- 5d8:	2000      	movs	r0, #0
 extern "C" int main(void)
 {
     SIM_SCGC5 = SIM_SCGC5_PORTC;
     PORTC_PCR5 = PORT_PCR_MUX(1U);
     GPIOC_PDDR |= LED;
     GPIOC_PSOR = LED;
- 5da:	601a      	str	r2, [r3, #0]
+ 532:	601a      	str	r2, [r3, #0]
 }
- 5dc:	4770      	bx	lr
- 5de:	46c0      	nop			; (mov r8, r8)
- 5e0:	40048038 	.word	0x40048038
- 5e4:	4004b014 	.word	0x4004b014
- 5e8:	400ff094 	.word	0x400ff094
- 5ec:	400ff084 	.word	0x400ff084
+ 534:	4770      	bx	lr
+ 536:	46c0      	nop			; (mov r8, r8)
+ 538:	40048038 	.word	0x40048038
+ 53c:	4004b014 	.word	0x4004b014
+ 540:	400ff094 	.word	0x400ff094
+ 544:	400ff084 	.word	0x400ff084
 
-000005f0 <__libc_init_array>:
- 5f0:	4b0e      	ldr	r3, [pc, #56]	; (62c <__libc_init_array+0x3c>)
- 5f2:	b570      	push	{r4, r5, r6, lr}
- 5f4:	2500      	movs	r5, #0
- 5f6:	1c1e      	adds	r6, r3, #0
- 5f8:	4c0d      	ldr	r4, [pc, #52]	; (630 <__libc_init_array+0x40>)
- 5fa:	1ae4      	subs	r4, r4, r3
- 5fc:	10a4      	asrs	r4, r4, #2
- 5fe:	42a5      	cmp	r5, r4
- 600:	d004      	beq.n	60c <__libc_init_array+0x1c>
- 602:	00ab      	lsls	r3, r5, #2
- 604:	58f3      	ldr	r3, [r6, r3]
- 606:	4798      	blx	r3
- 608:	3501      	adds	r5, #1
- 60a:	e7f8      	b.n	5fe <__libc_init_array+0xe>
- 60c:	f000 f816 	bl	63c <_init>
- 610:	4b08      	ldr	r3, [pc, #32]	; (634 <__libc_init_array+0x44>)
- 612:	2500      	movs	r5, #0
- 614:	1c1e      	adds	r6, r3, #0
- 616:	4c08      	ldr	r4, [pc, #32]	; (638 <__libc_init_array+0x48>)
- 618:	1ae4      	subs	r4, r4, r3
- 61a:	10a4      	asrs	r4, r4, #2
- 61c:	42a5      	cmp	r5, r4
- 61e:	d004      	beq.n	62a <__libc_init_array+0x3a>
- 620:	00ab      	lsls	r3, r5, #2
- 622:	58f3      	ldr	r3, [r6, r3]
- 624:	4798      	blx	r3
- 626:	3501      	adds	r5, #1
- 628:	e7f8      	b.n	61c <__libc_init_array+0x2c>
- 62a:	bd70      	pop	{r4, r5, r6, pc}
- 62c:	00000648 	.word	0x00000648
- 630:	00000648 	.word	0x00000648
- 634:	00000648 	.word	0x00000648
- 638:	0000064c 	.word	0x0000064c
+00000548 <_init>:
+ 548:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 54a:	46c0      	nop			; (mov r8, r8)
+ 54c:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 54e:	bc08      	pop	{r3}
+ 550:	469e      	mov	lr, r3
+ 552:	4770      	bx	lr
 
-0000063c <_init>:
- 63c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
- 63e:	46c0      	nop			; (mov r8, r8)
- 640:	bcf8      	pop	{r3, r4, r5, r6, r7}
- 642:	bc08      	pop	{r3}
- 644:	469e      	mov	lr, r3
- 646:	4770      	bx	lr
-
-00000648 <__init_array_start>:
- 648:	00000489 	.word	0x00000489
+00000554 <__frame_dummy_init_array_entry>:
+ 554:	0489 0000                                   ....
 
 Disassembly of section .fini:
 
-0000064c <_fini>:
- 64c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
- 64e:	46c0      	nop			; (mov r8, r8)
+00000558 <_fini>:
+ 558:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 55a:	46c0      	nop			; (mov r8, r8)

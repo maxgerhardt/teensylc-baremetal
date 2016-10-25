@@ -3,7 +3,7 @@ TARGET = main
 
 # set your MCU type here, or make command line `make MCU=MK20DX256`
 MCU=MKL26Z64
-MCU_LD = $(MCD).ld
+MCU_LD = $(MCU).ld
 
 # configurable options
 OPTIONS = -DF_CPU=48000000 -D__$(MCU)__ 
