@@ -47,14 +47,14 @@
 // Flash Options
 #define FOPT 0xF9
 
+extern unsigned long _estack;
+
 extern unsigned long _stext;
 extern unsigned long _etext;
 extern unsigned long _sdata;
 extern unsigned long _edata;
 extern unsigned long _sbss;
 extern unsigned long _ebss;
-extern unsigned long _estack;
-
 
 // should reset handler exit, the hard_fault_isr will be called
 void ResetHandler(void);
@@ -62,14 +62,11 @@ extern int main (void);
 
 void init_data_bss()
 {
-    unsigned int *src, *dest, *dend;
-    src  = (unsigned int *)(&_etext);
-    dest = (unsigned int *)(&_sdata);
-    dend = (unsigned int *)(&_edata);
-    while (dest < dend) *(dest++) = *(src++);
-    dest = (unsigned int *)(&_sbss);
-    dend = (unsigned int *)(&_ebss);
-    while (dest < dend) *(dest++) = 0;
+    uint32_t *src = &_etext;
+    uint32_t *dest = &_sdata;
+    while (dest < &_edata) *dest++ = *src++;
+    dest = &_sbss;
+    while (dest < &_ebss) *dest++ = 0;
 }
 
 void fault_isr(void)
@@ -621,8 +618,6 @@ __attribute__ ((section(".startup"),optimize("-Os")))
 #endif
 void ResetHandler(void)
 {
-	uint32_t *src = &_etext;
-	uint32_t *dest = &_sdata;
 	unsigned int i;
 #if F_CPU <= 2000000
 	volatile int n;
@@ -692,10 +687,8 @@ void ResetHandler(void)
 	SMC_PMPROT = SMC_PMPROT_AVLP | SMC_PMPROT_ALLS | SMC_PMPROT_AVLLS;
 #endif
     
-	// TODO: do this while the PLL is waiting to lock....
-	while (dest < &_edata) *dest++ = *src++;
-	dest = &_sbss;
-	while (dest < &_ebss) *dest++ = 0;
+        init_data_bss();
+
 
 	// default all interrupts to medium priority level
 	for (i=0; i < NVIC_NUM_INTERRUPTS + 16; i++) _VectorsRam[i] = _VectorsFlash[i];
@@ -1056,5 +1049,4 @@ void ResetHandler(void)
 	startup_late_hook();
 	main();
 }
-
 
