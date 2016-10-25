@@ -1,0 +1,883 @@
+
+main.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <_VectorsFlash>:
+   0:	00 18 00 20 c1 00 00 00 09 05 00 00 d5 04 00 00     ... ............
+  10:	d5 04 00 00 d5 04 00 00 d5 04 00 00 d5 04 00 00     ................
+  20:	d5 04 00 00 d5 04 00 00 d5 04 00 00 09 05 00 00     ................
+  30:	09 05 00 00 d5 04 00 00 09 05 00 00 c5 04 00 00     ................
+  40:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
+  50:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
+  60:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
+  70:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
+  80:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
+  90:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
+  a0:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
+  b0:	09 05 00 00 09 05 00 00 09 05 00 00 09 05 00 00     ................
+
+000000c0 <ResetHandler>:
+__attribute__ ((optimize("-Os")))
+#else
+__attribute__ ((section(".startup"),optimize("-Os")))
+#endif
+void ResetHandler(void)
+{
+  c0:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+	__asm__ volatile ("nop");
+	__asm__ volatile ("nop");
+#endif
+	// programs using the watchdog timer or needing to initialize hardware as
+	// early as possible can implement startup_early_hook()
+	startup_early_hook();
+  c2:	f000 fa24 	bl	50e <startup_early_hook>
+		RTC_SR = 0;
+		RTC_CR = RTC_CR_SC16P | RTC_CR_SC4P | RTC_CR_OSCE;
+	}
+#endif
+	// release I/O pins hold, if we woke up from VLLS mode
+	if (PMC_REGSC & PMC_REGSC_ACKISO) PMC_REGSC |= PMC_REGSC_ACKISO;
+  c6:	2108      	movs	r1, #8
+  c8:	4b41      	ldr	r3, [pc, #260]	; (1d0 <ResetHandler+0x110>)
+  ca:	781a      	ldrb	r2, [r3, #0]
+  cc:	420a      	tst	r2, r1
+  ce:	d002      	beq.n	d6 <ResetHandler+0x16>
+  d0:	781a      	ldrb	r2, [r3, #0]
+  d2:	430a      	orrs	r2, r1
+  d4:	701a      	strb	r2, [r3, #0]
+    // since this is a write once register, make it visible to all F_CPU's
+    // so we can into other sleep modes in the future at any speed
+#if defined(__MK66FX1M0__)
+	SMC_PMPROT = SMC_PMPROT_AHSRUN | SMC_PMPROT_AVLP | SMC_PMPROT_ALLS | SMC_PMPROT_AVLLS;
+#else
+	SMC_PMPROT = SMC_PMPROT_AVLP | SMC_PMPROT_ALLS | SMC_PMPROT_AVLLS;
+  d6:	222a      	movs	r2, #42	; 0x2a
+  d8:	4b3e      	ldr	r3, [pc, #248]	; (1d4 <ResetHandler+0x114>)
+  da:	483f      	ldr	r0, [pc, #252]	; (1d8 <ResetHandler+0x118>)
+  dc:	701a      	strb	r2, [r3, #0]
+#endif
+    
+	// TODO: do this while the PLL is waiting to lock....
+	while (dest < &_edata) *dest++ = *src++;
+  de:	2300      	movs	r3, #0
+  e0:	493e      	ldr	r1, [pc, #248]	; (1dc <ResetHandler+0x11c>)
+  e2:	4c3f      	ldr	r4, [pc, #252]	; (1e0 <ResetHandler+0x120>)
+  e4:	181a      	adds	r2, r3, r0
+  e6:	428a      	cmp	r2, r1
+  e8:	d203      	bcs.n	f2 <ResetHandler+0x32>
+  ea:	58e5      	ldr	r5, [r4, r3]
+  ec:	3304      	adds	r3, #4
+  ee:	6015      	str	r5, [r2, #0]
+  f0:	e7f8      	b.n	e4 <ResetHandler+0x24>
+  f2:	2100      	movs	r1, #0
+  f4:	4b3b      	ldr	r3, [pc, #236]	; (1e4 <ResetHandler+0x124>)
+	dest = &_sbss;
+	while (dest < &_ebss) *dest++ = 0;
+  f6:	4a3c      	ldr	r2, [pc, #240]	; (1e8 <ResetHandler+0x128>)
+  f8:	4293      	cmp	r3, r2
+  fa:	d201      	bcs.n	100 <ResetHandler+0x40>
+  fc:	c302      	stmia	r3!, {r1}
+  fe:	e7fb      	b.n	f8 <ResetHandler+0x38>
+ 100:	2300      	movs	r3, #0
+
+	// default all interrupts to medium priority level
+	for (i=0; i < NVIC_NUM_INTERRUPTS + 16; i++) _VectorsRam[i] = _VectorsFlash[i];
+ 102:	4a3a      	ldr	r2, [pc, #232]	; (1ec <ResetHandler+0x12c>)
+ 104:	493a      	ldr	r1, [pc, #232]	; (1f0 <ResetHandler+0x130>)
+ 106:	5858      	ldr	r0, [r3, r1]
+ 108:	4694      	mov	ip, r2
+ 10a:	5098      	str	r0, [r3, r2]
+ 10c:	3304      	adds	r3, #4
+ 10e:	2bc0      	cmp	r3, #192	; 0xc0
+ 110:	d1f9      	bne.n	106 <ResetHandler+0x46>
+ 112:	2100      	movs	r1, #0
+	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
+ 114:	2603      	movs	r6, #3
+ 116:	25ff      	movs	r5, #255	; 0xff
+ 118:	2480      	movs	r4, #128	; 0x80
+ 11a:	088a      	lsrs	r2, r1, #2
+ 11c:	4b35      	ldr	r3, [pc, #212]	; (1f4 <ResetHandler+0x134>)
+ 11e:	0092      	lsls	r2, r2, #2
+ 120:	18d2      	adds	r2, r2, r3
+ 122:	1c0b      	adds	r3, r1, #0
+ 124:	1c2f      	adds	r7, r5, #0
+ 126:	4033      	ands	r3, r6
+ 128:	00db      	lsls	r3, r3, #3
+ 12a:	409f      	lsls	r7, r3
+ 12c:	6810      	ldr	r0, [r2, #0]
+ 12e:	3101      	adds	r1, #1
+ 130:	43b8      	bics	r0, r7
+ 132:	1c07      	adds	r7, r0, #0
+ 134:	1c20      	adds	r0, r4, #0
+ 136:	4098      	lsls	r0, r3
+ 138:	1c03      	adds	r3, r0, #0
+ 13a:	433b      	orrs	r3, r7
+ 13c:	6013      	str	r3, [r2, #0]
+ 13e:	2920      	cmp	r1, #32
+ 140:	d1eb      	bne.n	11a <ResetHandler+0x5a>
+	SCB_VTOR = (uint32_t)_VectorsRam;	// use vector table in RAM
+ 142:	4662      	mov	r2, ip
+ 144:	4b2c      	ldr	r3, [pc, #176]	; (1f8 <ResetHandler+0x138>)
+ 146:	601a      	str	r2, [r3, #0]
+    #if defined(KINETISK)
+    // enable capacitors for crystal
+    OSC0_CR = OSC_SC8P | OSC_SC2P | OSC_ERCLKEN;
+    #elif defined(KINETISL)
+    // enable capacitors for crystal
+    OSC0_CR = OSC_SC8P | OSC_SC2P | OSC_ERCLKEN;
+ 148:	228a      	movs	r2, #138	; 0x8a
+ 14a:	4b2c      	ldr	r3, [pc, #176]	; (1fc <ResetHandler+0x13c>)
+ 14c:	701a      	strb	r2, [r3, #0]
+    #endif
+	// enable osc, 8-32 MHz range, low power mode
+	MCG_C2 = MCG_C2_RANGE0(2) | MCG_C2_EREFS;
+ 14e:	4b2c      	ldr	r3, [pc, #176]	; (200 <ResetHandler+0x140>)
+ 150:	3a66      	subs	r2, #102	; 0x66
+ 152:	705a      	strb	r2, [r3, #1]
+	// switch to crystal as clock source, FLL input = 16 MHz / 512
+	MCG_C1 =  MCG_C1_CLKS(2) | MCG_C1_FRDIV(4);
+ 154:	327c      	adds	r2, #124	; 0x7c
+ 156:	701a      	strb	r2, [r3, #0]
+	// wait for crystal oscillator to begin
+	while ((MCG_S & MCG_S_OSCINIT0) == 0) ;
+ 158:	3a9e      	subs	r2, #158	; 0x9e
+ 15a:	7999      	ldrb	r1, [r3, #6]
+ 15c:	4211      	tst	r1, r2
+ 15e:	d0fc      	beq.n	15a <ResetHandler+0x9a>
+	// wait for FLL to use oscillator
+	while ((MCG_S & MCG_S_IREFST) != 0) ;
+ 160:	2210      	movs	r2, #16
+ 162:	7999      	ldrb	r1, [r3, #6]
+ 164:	4211      	tst	r1, r2
+ 166:	d1fc      	bne.n	162 <ResetHandler+0xa2>
+	// wait for MCGOUT to use oscillator
+	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)) ;
+ 168:	200c      	movs	r0, #12
+ 16a:	799a      	ldrb	r2, [r3, #6]
+ 16c:	4924      	ldr	r1, [pc, #144]	; (200 <ResetHandler+0x140>)
+ 16e:	4002      	ands	r2, r0
+ 170:	2a08      	cmp	r2, #8
+ 172:	d1fa      	bne.n	16a <ResetHandler+0xaa>
+    #endif
+   #else
+    #if F_CPU == 72000000
+	MCG_C5 = MCG_C5_PRDIV0(5);		 // config PLL input for 16 MHz Crystal / 6 = 2.667 Hz
+    #else
+	MCG_C5 = MCG_C5_PRDIV0(3);		 // config PLL input for 16 MHz Crystal / 4 = 4 MHz
+ 174:	3a05      	subs	r2, #5
+ 176:	710a      	strb	r2, [r1, #4]
+    #elif F_CPU == 120000000
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(6); // config PLL for 120 MHz output
+    #elif F_CPU == 72000000
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(3); // config PLL for 72 MHz output
+    #elif F_CPU == 96000000 || F_CPU == 48000000 || F_CPU == 24000000
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(0); // config PLL for 96 MHz output
+ 178:	323d      	adds	r2, #61	; 0x3d
+ 17a:	714a      	strb	r2, [r1, #5]
+    #error "This clock speed isn't supported..."
+    #endif
+   #endif
+
+	// wait for PLL to start using xtal as its input
+	while (!(MCG_S & MCG_S_PLLST)) ;
+ 17c:	3a20      	subs	r2, #32
+ 17e:	7999      	ldrb	r1, [r3, #6]
+ 180:	4211      	tst	r1, r2
+ 182:	d0fc      	beq.n	17e <ResetHandler+0xbe>
+	// wait for PLL to lock
+	while (!(MCG_S & MCG_S_LOCK0)) ;
+ 184:	2240      	movs	r2, #64	; 0x40
+ 186:	7999      	ldrb	r1, [r3, #6]
+ 188:	4211      	tst	r1, r2
+ 18a:	d0fc      	beq.n	186 <ResetHandler+0xc6>
+	// config divisors: 48 MHz core, 48 MHz bus, 24 MHz flash, USB = 96 / 2
+  #if defined(KINETISK)
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV3(1) |  SIM_CLKDIV1_OUTDIV4(3);
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1);
+  #elif defined(KINETISL)
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV4(1);
+ 18c:	491d      	ldr	r1, [pc, #116]	; (204 <ResetHandler+0x144>)
+ 18e:	4a1e      	ldr	r2, [pc, #120]	; (208 <ResetHandler+0x148>)
+ 190:	6011      	str	r1, [r2, #0]
+#error "Error, F_CPU must be 192, 180, 168, 144, 120, 96, 72, 48, 24, 16, 8, 4, or 2 MHz"
+#endif
+
+#if F_CPU > 16000000
+	// switch to PLL as clock source, FLL input = 16 MHz / 512
+	MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
+ 192:	2120      	movs	r1, #32
+ 194:	4a1a      	ldr	r2, [pc, #104]	; (200 <ResetHandler+0x140>)
+ 196:	7011      	strb	r1, [r2, #0]
+	// wait for PLL clock to be used
+	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
+ 198:	3914      	subs	r1, #20
+ 19a:	799a      	ldrb	r2, [r3, #6]
+ 19c:	400a      	ands	r2, r1
+ 19e:	2a0c      	cmp	r2, #12
+ 1a0:	d1fb      	bne.n	19a <ResetHandler+0xda>
+	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_IRC48SEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
+	#else
+	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
+	#endif
+	#elif defined(KINETISL)
+	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_CLKOUTSEL(6)
+ 1a2:	4a1a      	ldr	r2, [pc, #104]	; (20c <ResetHandler+0x14c>)
+ 1a4:	4b1a      	ldr	r3, [pc, #104]	; (210 <ResetHandler+0x150>)
+ 1a6:	601a      	str	r2, [r3, #0]
+    // since we are not going into "stop mode" i removed it
+	SMC_PMCTRL = SMC_PMCTRL_RUNM(2); // VLPR mode :-)
+#endif
+
+	// initialize the SysTick counter
+	SYST_RVR = (F_CPU / 1000) - 1;
+ 1a8:	4a1a      	ldr	r2, [pc, #104]	; (214 <ResetHandler+0x154>)
+ 1aa:	4b1b      	ldr	r3, [pc, #108]	; (218 <ResetHandler+0x158>)
+ 1ac:	601a      	str	r2, [r3, #0]
+	SYST_CVR = 0;
+ 1ae:	2200      	movs	r2, #0
+ 1b0:	4b1a      	ldr	r3, [pc, #104]	; (21c <ResetHandler+0x15c>)
+ 1b2:	601a      	str	r2, [r3, #0]
+	SYST_CSR = SYST_CSR_CLKSOURCE | SYST_CSR_TICKINT | SYST_CSR_ENABLE;
+ 1b4:	4b1a      	ldr	r3, [pc, #104]	; (220 <ResetHandler+0x160>)
+ 1b6:	3207      	adds	r2, #7
+ 1b8:	601a      	str	r2, [r3, #0]
+	SCB_SHPR3 = 0x20200000;  // Systick = priority 32
+ 1ba:	4a1a      	ldr	r2, [pc, #104]	; (224 <ResetHandler+0x164>)
+ 1bc:	4b1a      	ldr	r3, [pc, #104]	; (228 <ResetHandler+0x168>)
+ 1be:	601a      	str	r2, [r3, #0]
+
+	//init_pins();
+	__enable_irq();
+ 1c0:	b662      	cpsie	i
+		#endif
+		*(uint32_t *)0x4003E01C = 0;
+	}
+#endif
+
+	__libc_init_array();
+ 1c2:	f000 fa15 	bl	5f0 <__libc_init_array>
+
+	startup_late_hook();
+ 1c6:	f000 f9a9 	bl	51c <startup_late_hook>
+	main();
+ 1ca:	f000 f9f7 	bl	5bc <main>
+	while (1) ;
+ 1ce:	e7fe      	b.n	1ce <ResetHandler+0x10e>
+ 1d0:	4007d002 	.word	0x4007d002
+ 1d4:	4007e000 	.word	0x4007e000
+ 1d8:	1ffff8c0 	.word	0x1ffff8c0
+ 1dc:	1ffff8c4 	.word	0x1ffff8c4
+ 1e0:	00000650 	.word	0x00000650
+ 1e4:	1ffff8c4 	.word	0x1ffff8c4
+ 1e8:	1ffff8e4 	.word	0x1ffff8e4
+ 1ec:	1ffff800 	.word	0x1ffff800
+ 1f0:	00000000 	.word	0x00000000
+ 1f4:	e000e400 	.word	0xe000e400
+ 1f8:	e000ed08 	.word	0xe000ed08
+ 1fc:	40065000 	.word	0x40065000
+ 200:	40064000 	.word	0x40064000
+ 204:	10010000 	.word	0x10010000
+ 208:	40048044 	.word	0x40048044
+ 20c:	050500c0 	.word	0x050500c0
+ 210:	40048004 	.word	0x40048004
+ 214:	0000bb7f 	.word	0x0000bb7f
+ 218:	e000e014 	.word	0xe000e014
+ 21c:	e000e018 	.word	0xe000e018
+ 220:	e000e010 	.word	0xe000e010
+ 224:	20200000 	.word	0x20200000
+ 228:	e000ed20 	.word	0xe000ed20
+ 22c:	ffffffff 	.word	0xffffffff
+ 230:	ffffffff 	.word	0xffffffff
+ 234:	ffffffff 	.word	0xffffffff
+ 238:	ffffffff 	.word	0xffffffff
+ 23c:	ffffffff 	.word	0xffffffff
+ 240:	ffffffff 	.word	0xffffffff
+ 244:	ffffffff 	.word	0xffffffff
+ 248:	ffffffff 	.word	0xffffffff
+ 24c:	ffffffff 	.word	0xffffffff
+ 250:	ffffffff 	.word	0xffffffff
+ 254:	ffffffff 	.word	0xffffffff
+ 258:	ffffffff 	.word	0xffffffff
+ 25c:	ffffffff 	.word	0xffffffff
+ 260:	ffffffff 	.word	0xffffffff
+ 264:	ffffffff 	.word	0xffffffff
+ 268:	ffffffff 	.word	0xffffffff
+ 26c:	ffffffff 	.word	0xffffffff
+ 270:	ffffffff 	.word	0xffffffff
+ 274:	ffffffff 	.word	0xffffffff
+ 278:	ffffffff 	.word	0xffffffff
+ 27c:	ffffffff 	.word	0xffffffff
+ 280:	ffffffff 	.word	0xffffffff
+ 284:	ffffffff 	.word	0xffffffff
+ 288:	ffffffff 	.word	0xffffffff
+ 28c:	ffffffff 	.word	0xffffffff
+ 290:	ffffffff 	.word	0xffffffff
+ 294:	ffffffff 	.word	0xffffffff
+ 298:	ffffffff 	.word	0xffffffff
+ 29c:	ffffffff 	.word	0xffffffff
+ 2a0:	ffffffff 	.word	0xffffffff
+ 2a4:	ffffffff 	.word	0xffffffff
+ 2a8:	ffffffff 	.word	0xffffffff
+ 2ac:	ffffffff 	.word	0xffffffff
+ 2b0:	ffffffff 	.word	0xffffffff
+ 2b4:	ffffffff 	.word	0xffffffff
+ 2b8:	ffffffff 	.word	0xffffffff
+ 2bc:	ffffffff 	.word	0xffffffff
+ 2c0:	ffffffff 	.word	0xffffffff
+ 2c4:	ffffffff 	.word	0xffffffff
+ 2c8:	ffffffff 	.word	0xffffffff
+ 2cc:	ffffffff 	.word	0xffffffff
+ 2d0:	ffffffff 	.word	0xffffffff
+ 2d4:	ffffffff 	.word	0xffffffff
+ 2d8:	ffffffff 	.word	0xffffffff
+ 2dc:	ffffffff 	.word	0xffffffff
+ 2e0:	ffffffff 	.word	0xffffffff
+ 2e4:	ffffffff 	.word	0xffffffff
+ 2e8:	ffffffff 	.word	0xffffffff
+ 2ec:	ffffffff 	.word	0xffffffff
+ 2f0:	ffffffff 	.word	0xffffffff
+ 2f4:	ffffffff 	.word	0xffffffff
+ 2f8:	ffffffff 	.word	0xffffffff
+ 2fc:	ffffffff 	.word	0xffffffff
+ 300:	ffffffff 	.word	0xffffffff
+ 304:	ffffffff 	.word	0xffffffff
+ 308:	ffffffff 	.word	0xffffffff
+ 30c:	ffffffff 	.word	0xffffffff
+ 310:	ffffffff 	.word	0xffffffff
+ 314:	ffffffff 	.word	0xffffffff
+ 318:	ffffffff 	.word	0xffffffff
+ 31c:	ffffffff 	.word	0xffffffff
+ 320:	ffffffff 	.word	0xffffffff
+ 324:	ffffffff 	.word	0xffffffff
+ 328:	ffffffff 	.word	0xffffffff
+ 32c:	ffffffff 	.word	0xffffffff
+ 330:	ffffffff 	.word	0xffffffff
+ 334:	ffffffff 	.word	0xffffffff
+ 338:	ffffffff 	.word	0xffffffff
+ 33c:	ffffffff 	.word	0xffffffff
+ 340:	ffffffff 	.word	0xffffffff
+ 344:	ffffffff 	.word	0xffffffff
+ 348:	ffffffff 	.word	0xffffffff
+ 34c:	ffffffff 	.word	0xffffffff
+ 350:	ffffffff 	.word	0xffffffff
+ 354:	ffffffff 	.word	0xffffffff
+ 358:	ffffffff 	.word	0xffffffff
+ 35c:	ffffffff 	.word	0xffffffff
+ 360:	ffffffff 	.word	0xffffffff
+ 364:	ffffffff 	.word	0xffffffff
+ 368:	ffffffff 	.word	0xffffffff
+ 36c:	ffffffff 	.word	0xffffffff
+ 370:	ffffffff 	.word	0xffffffff
+ 374:	ffffffff 	.word	0xffffffff
+ 378:	ffffffff 	.word	0xffffffff
+ 37c:	ffffffff 	.word	0xffffffff
+ 380:	ffffffff 	.word	0xffffffff
+ 384:	ffffffff 	.word	0xffffffff
+ 388:	ffffffff 	.word	0xffffffff
+ 38c:	ffffffff 	.word	0xffffffff
+ 390:	ffffffff 	.word	0xffffffff
+ 394:	ffffffff 	.word	0xffffffff
+ 398:	ffffffff 	.word	0xffffffff
+ 39c:	ffffffff 	.word	0xffffffff
+ 3a0:	ffffffff 	.word	0xffffffff
+ 3a4:	ffffffff 	.word	0xffffffff
+ 3a8:	ffffffff 	.word	0xffffffff
+ 3ac:	ffffffff 	.word	0xffffffff
+ 3b0:	ffffffff 	.word	0xffffffff
+ 3b4:	ffffffff 	.word	0xffffffff
+ 3b8:	ffffffff 	.word	0xffffffff
+ 3bc:	ffffffff 	.word	0xffffffff
+ 3c0:	ffffffff 	.word	0xffffffff
+ 3c4:	ffffffff 	.word	0xffffffff
+ 3c8:	ffffffff 	.word	0xffffffff
+ 3cc:	ffffffff 	.word	0xffffffff
+ 3d0:	ffffffff 	.word	0xffffffff
+ 3d4:	ffffffff 	.word	0xffffffff
+ 3d8:	ffffffff 	.word	0xffffffff
+ 3dc:	ffffffff 	.word	0xffffffff
+ 3e0:	ffffffff 	.word	0xffffffff
+ 3e4:	ffffffff 	.word	0xffffffff
+ 3e8:	ffffffff 	.word	0xffffffff
+ 3ec:	ffffffff 	.word	0xffffffff
+ 3f0:	ffffffff 	.word	0xffffffff
+ 3f4:	ffffffff 	.word	0xffffffff
+ 3f8:	ffffffff 	.word	0xffffffff
+ 3fc:	ffffffff 	.word	0xffffffff
+
+00000400 <flashconfigbytes>:
+ 400:	ffffffff ffffffff ffffffff fffff9de     ................
+
+00000410 <deregister_tm_clones>:
+ 410:	b508      	push	{r3, lr}
+ 412:	4b05      	ldr	r3, [pc, #20]	; (428 <deregister_tm_clones+0x18>)
+ 414:	4805      	ldr	r0, [pc, #20]	; (42c <deregister_tm_clones+0x1c>)
+ 416:	3303      	adds	r3, #3
+ 418:	1a1b      	subs	r3, r3, r0
+ 41a:	2b06      	cmp	r3, #6
+ 41c:	d903      	bls.n	426 <deregister_tm_clones+0x16>
+ 41e:	4b04      	ldr	r3, [pc, #16]	; (430 <deregister_tm_clones+0x20>)
+ 420:	2b00      	cmp	r3, #0
+ 422:	d000      	beq.n	426 <deregister_tm_clones+0x16>
+ 424:	4798      	blx	r3
+ 426:	bd08      	pop	{r3, pc}
+ 428:	1ffff8c4 	.word	0x1ffff8c4
+ 42c:	1ffff8c4 	.word	0x1ffff8c4
+ 430:	00000000 	.word	0x00000000
+
+00000434 <register_tm_clones>:
+ 434:	4806      	ldr	r0, [pc, #24]	; (450 <register_tm_clones+0x1c>)
+ 436:	4907      	ldr	r1, [pc, #28]	; (454 <register_tm_clones+0x20>)
+ 438:	b508      	push	{r3, lr}
+ 43a:	1a09      	subs	r1, r1, r0
+ 43c:	1089      	asrs	r1, r1, #2
+ 43e:	0fcb      	lsrs	r3, r1, #31
+ 440:	1859      	adds	r1, r3, r1
+ 442:	1049      	asrs	r1, r1, #1
+ 444:	d003      	beq.n	44e <register_tm_clones+0x1a>
+ 446:	4b04      	ldr	r3, [pc, #16]	; (458 <register_tm_clones+0x24>)
+ 448:	2b00      	cmp	r3, #0
+ 44a:	d000      	beq.n	44e <register_tm_clones+0x1a>
+ 44c:	4798      	blx	r3
+ 44e:	bd08      	pop	{r3, pc}
+ 450:	1ffff8c4 	.word	0x1ffff8c4
+ 454:	1ffff8c4 	.word	0x1ffff8c4
+ 458:	00000000 	.word	0x00000000
+
+0000045c <__do_global_dtors_aux>:
+ 45c:	b510      	push	{r4, lr}
+ 45e:	4c07      	ldr	r4, [pc, #28]	; (47c <__do_global_dtors_aux+0x20>)
+ 460:	7823      	ldrb	r3, [r4, #0]
+ 462:	2b00      	cmp	r3, #0
+ 464:	d109      	bne.n	47a <__do_global_dtors_aux+0x1e>
+ 466:	f7ff ffd3 	bl	410 <deregister_tm_clones>
+ 46a:	4b05      	ldr	r3, [pc, #20]	; (480 <__do_global_dtors_aux+0x24>)
+ 46c:	2b00      	cmp	r3, #0
+ 46e:	d002      	beq.n	476 <__do_global_dtors_aux+0x1a>
+ 470:	4804      	ldr	r0, [pc, #16]	; (484 <__do_global_dtors_aux+0x28>)
+ 472:	e000      	b.n	476 <__do_global_dtors_aux+0x1a>
+ 474:	bf00      	nop
+ 476:	2301      	movs	r3, #1
+ 478:	7023      	strb	r3, [r4, #0]
+ 47a:	bd10      	pop	{r4, pc}
+ 47c:	1ffff8c4 	.word	0x1ffff8c4
+ 480:	00000000 	.word	0x00000000
+ 484:	00000650 	.word	0x00000650
+
+00000488 <frame_dummy>:
+ 488:	b508      	push	{r3, lr}
+ 48a:	4b09      	ldr	r3, [pc, #36]	; (4b0 <frame_dummy+0x28>)
+ 48c:	2b00      	cmp	r3, #0
+ 48e:	d003      	beq.n	498 <frame_dummy+0x10>
+ 490:	4808      	ldr	r0, [pc, #32]	; (4b4 <frame_dummy+0x2c>)
+ 492:	4909      	ldr	r1, [pc, #36]	; (4b8 <frame_dummy+0x30>)
+ 494:	e000      	b.n	498 <frame_dummy+0x10>
+ 496:	bf00      	nop
+ 498:	4808      	ldr	r0, [pc, #32]	; (4bc <frame_dummy+0x34>)
+ 49a:	6803      	ldr	r3, [r0, #0]
+ 49c:	2b00      	cmp	r3, #0
+ 49e:	d102      	bne.n	4a6 <frame_dummy+0x1e>
+ 4a0:	f7ff ffc8 	bl	434 <register_tm_clones>
+ 4a4:	bd08      	pop	{r3, pc}
+ 4a6:	4b06      	ldr	r3, [pc, #24]	; (4c0 <frame_dummy+0x38>)
+ 4a8:	2b00      	cmp	r3, #0
+ 4aa:	d0f9      	beq.n	4a0 <frame_dummy+0x18>
+ 4ac:	4798      	blx	r3
+ 4ae:	e7f7      	b.n	4a0 <frame_dummy+0x18>
+ 4b0:	00000000 	.word	0x00000000
+ 4b4:	00000650 	.word	0x00000650
+ 4b8:	1ffff8c8 	.word	0x1ffff8c8
+ 4bc:	1ffff8c4 	.word	0x1ffff8c4
+ 4c0:	00000000 	.word	0x00000000
+
+000004c4 <systick_default_isr>:
+*/
+
+volatile uint32_t systick_millis_count;
+void systick_default_isr(void)
+{
+	systick_millis_count++;
+ 4c4:	4a02      	ldr	r2, [pc, #8]	; (4d0 <systick_default_isr+0xc>)
+ 4c6:	6813      	ldr	r3, [r2, #0]
+ 4c8:	3301      	adds	r3, #1
+ 4ca:	6013      	str	r3, [r2, #0]
+}
+ 4cc:	4770      	bx	lr
+ 4ce:	46c0      	nop			; (mov r8, r8)
+ 4d0:	1ffff8e0 	.word	0x1ffff8e0
+
+000004d4 <fault_isr>:
+void _init_Teensyduino_internal_(void);
+void __libc_init_array(void);
+
+
+void fault_isr(void)
+{
+ 4d4:	b510      	push	{r4, lr}
+        asm("ldr %0, [sp, #0]" : "=r" (addr) ::);
+#endif
+	while (1) {
+		// keep polling some communication while in fault
+		// mode, so we don't completely die.
+		if (SIM_SCGC4 & SIM_SCGC4_USBOTG) usb_isr();
+ 4d6:	4c0b      	ldr	r4, [pc, #44]	; (504 <fault_isr+0x30>)
+ 4d8:	6823      	ldr	r3, [r4, #0]
+ 4da:	035b      	lsls	r3, r3, #13
+ 4dc:	d501      	bpl.n	4e2 <fault_isr+0xe>
+ 4de:	f000 f813 	bl	508 <unused_isr>
+		if (SIM_SCGC4 & SIM_SCGC4_UART0) uart0_status_isr();
+ 4e2:	6823      	ldr	r3, [r4, #0]
+ 4e4:	055b      	lsls	r3, r3, #21
+ 4e6:	d501      	bpl.n	4ec <fault_isr+0x18>
+ 4e8:	f000 f80e 	bl	508 <unused_isr>
+		if (SIM_SCGC4 & SIM_SCGC4_UART1) uart1_status_isr();
+ 4ec:	6823      	ldr	r3, [r4, #0]
+ 4ee:	051b      	lsls	r3, r3, #20
+ 4f0:	d501      	bpl.n	4f6 <fault_isr+0x22>
+ 4f2:	f000 f809 	bl	508 <unused_isr>
+		if (SIM_SCGC4 & SIM_SCGC4_UART2) uart2_status_isr();
+ 4f6:	6823      	ldr	r3, [r4, #0]
+ 4f8:	04db      	lsls	r3, r3, #19
+ 4fa:	d5ec      	bpl.n	4d6 <fault_isr+0x2>
+ 4fc:	f000 f804 	bl	508 <unused_isr>
+ 500:	e7e9      	b.n	4d6 <fault_isr+0x2>
+ 502:	46c0      	nop			; (mov r8, r8)
+ 504:	40048034 	.word	0x40048034
+
+00000508 <unused_isr>:
+	}
+}
+
+void unused_isr(void)
+{
+ 508:	b508      	push	{r3, lr}
+	fault_isr();
+ 50a:	f7ff ffe3 	bl	4d4 <fault_isr>
+
+0000050e <startup_early_hook>:
+
+static void startup_default_early_hook(void) {
+#if defined(KINETISK)
+	WDOG_STCTRLH = WDOG_STCTRLH_ALLOWUPDATE;
+#elif defined(KINETISL)
+	SIM_COPC = 0;  // disable the watchdog
+ 50e:	2200      	movs	r2, #0
+ 510:	4b01      	ldr	r3, [pc, #4]	; (518 <startup_early_hook+0xa>)
+ 512:	601a      	str	r2, [r3, #0]
+#endif
+}
+ 514:	4770      	bx	lr
+ 516:	46c0      	nop			; (mov r8, r8)
+ 518:	40048100 	.word	0x40048100
+
+0000051c <startup_late_hook>:
+static void startup_default_late_hook(void) {}
+ 51c:	4770      	bx	lr
+
+0000051e <_sbrk>:
+}
+
+char *__brkval = (char *)&_ebss;
+
+void * _sbrk(int incr)
+{
+ 51e:	1c03      	adds	r3, r0, #0
+	char *prev = __brkval;
+ 520:	4a02      	ldr	r2, [pc, #8]	; (52c <_sbrk+0xe>)
+ 522:	6810      	ldr	r0, [r2, #0]
+	__brkval += incr;
+ 524:	18c3      	adds	r3, r0, r3
+ 526:	6013      	str	r3, [r2, #0]
+	return prev;
+}
+ 528:	4770      	bx	lr
+ 52a:	46c0      	nop			; (mov r8, r8)
+ 52c:	1ffff8c0 	.word	0x1ffff8c0
+
+00000530 <_read>:
+
+__attribute__((weak)) 
+int _read(int file, char *ptr, int len)
+{
+	return 0;
+}
+ 530:	2000      	movs	r0, #0
+ 532:	4770      	bx	lr
+
+00000534 <_close>:
+
+__attribute__((weak)) 
+int _close(int fd)
+{
+	return -1;
+}
+ 534:	2001      	movs	r0, #1
+ 536:	4240      	negs	r0, r0
+ 538:	4770      	bx	lr
+
+0000053a <_fstat>:
+#include <sys/stat.h>
+
+__attribute__((weak)) 
+int _fstat(int fd, struct stat *st)
+{
+	st->st_mode = S_IFCHR;
+ 53a:	2380      	movs	r3, #128	; 0x80
+ 53c:	019b      	lsls	r3, r3, #6
+	return 0;
+}
+ 53e:	2000      	movs	r0, #0
+#include <sys/stat.h>
+
+__attribute__((weak)) 
+int _fstat(int fd, struct stat *st)
+{
+	st->st_mode = S_IFCHR;
+ 540:	604b      	str	r3, [r1, #4]
+	return 0;
+}
+ 542:	4770      	bx	lr
+
+00000544 <_isatty>:
+
+__attribute__((weak)) 
+int _isatty(int fd)
+{
+	return 1;
+}
+ 544:	2001      	movs	r0, #1
+ 546:	4770      	bx	lr
+
+00000548 <_lseek>:
+
+__attribute__((weak)) 
+int _lseek(int fd, long long offset, int whence)
+{
+	return -1;
+}
+ 548:	2001      	movs	r0, #1
+ 54a:	4240      	negs	r0, r0
+ 54c:	4770      	bx	lr
+
+0000054e <_exit>:
+
+__attribute__((weak)) 
+void _exit(int status)
+{
+	while (1);
+ 54e:	e7fe      	b.n	54e <_exit>
+
+00000550 <__cxa_pure_virtual>:
+}
+
+__attribute__((weak)) 
+void __cxa_pure_virtual()
+{
+	while (1);
+ 550:	e7fe      	b.n	550 <__cxa_pure_virtual>
+
+00000552 <__cxa_guard_acquire>:
+}
+
+__attribute__((weak)) 
+int __cxa_guard_acquire (char *g) 
+{
+	return !(*g);
+ 552:	7800      	ldrb	r0, [r0, #0]
+ 554:	4243      	negs	r3, r0
+ 556:	4158      	adcs	r0, r3
+}
+ 558:	4770      	bx	lr
+
+0000055a <__cxa_guard_release>:
+
+__attribute__((weak)) 
+void __cxa_guard_release(char *g)
+{
+	*g = 1;
+ 55a:	2301      	movs	r3, #1
+ 55c:	7003      	strb	r3, [r0, #0]
+}
+ 55e:	4770      	bx	lr
+
+00000560 <nvic_execution_priority>:
+	int priority=256;
+	uint32_t primask, faultmask, basepri, ipsr;
+
+	// full algorithm in ARM DDI0403D, page B1-639
+	// this isn't quite complete, but hopefully good enough
+	__asm__ volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
+ 560:	f3ef 8313 	mrs	r3, FAULTMASK
+	if (faultmask) return -1;
+ 564:	2b00      	cmp	r3, #0
+ 566:	d123      	bne.n	5b0 <nvic_execution_priority+0x50>
+	__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
+ 568:	f3ef 8210 	mrs	r2, PRIMASK
+	if (primask) return 0;
+ 56c:	1c18      	adds	r0, r3, #0
+ 56e:	2a00      	cmp	r2, #0
+ 570:	d120      	bne.n	5b4 <nvic_execution_priority+0x54>
+	__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
+ 572:	f3ef 8105 	mrs	r1, IPSR
+	if (ipsr) {
+ 576:	2900      	cmp	r1, #0
+ 578:	d010      	beq.n	59c <nvic_execution_priority+0x3c>
+		if (ipsr < 16) priority = 0; // could be non-zero
+ 57a:	1c10      	adds	r0, r2, #0
+ 57c:	290f      	cmp	r1, #15
+ 57e:	d90f      	bls.n	5a0 <nvic_execution_priority+0x40>
+		else priority = NVIC_GET_PRIORITY(ipsr - 16);
+ 580:	1c0b      	adds	r3, r1, #0
+ 582:	3b10      	subs	r3, #16
+ 584:	4a0c      	ldr	r2, [pc, #48]	; (5b8 <nvic_execution_priority+0x58>)
+ 586:	089b      	lsrs	r3, r3, #2
+ 588:	009b      	lsls	r3, r3, #2
+ 58a:	189b      	adds	r3, r3, r2
+ 58c:	2203      	movs	r2, #3
+ 58e:	4011      	ands	r1, r2
+ 590:	1c08      	adds	r0, r1, #0
+ 592:	4090      	lsls	r0, r2
+ 594:	681b      	ldr	r3, [r3, #0]
+ 596:	40c3      	lsrs	r3, r0
+ 598:	b2d8      	uxtb	r0, r3
+ 59a:	e001      	b.n	5a0 <nvic_execution_priority+0x40>
+	*g = 1;
+}
+
+int nvic_execution_priority(void)
+{
+	int priority=256;
+ 59c:	2080      	movs	r0, #128	; 0x80
+ 59e:	0040      	lsls	r0, r0, #1
+	__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
+	if (ipsr) {
+		if (ipsr < 16) priority = 0; // could be non-zero
+		else priority = NVIC_GET_PRIORITY(ipsr - 16);
+	}
+	__asm__ volatile("mrs %0, basepri\n" : "=r" (basepri)::);
+ 5a0:	f3ef 8311 	mrs	r3, BASEPRI
+	if (basepri > 0 && basepri < priority) priority = basepri;
+ 5a4:	2b00      	cmp	r3, #0
+ 5a6:	d005      	beq.n	5b4 <nvic_execution_priority+0x54>
+ 5a8:	4283      	cmp	r3, r0
+ 5aa:	d203      	bcs.n	5b4 <nvic_execution_priority+0x54>
+ 5ac:	1c18      	adds	r0, r3, #0
+ 5ae:	e001      	b.n	5b4 <nvic_execution_priority+0x54>
+	uint32_t primask, faultmask, basepri, ipsr;
+
+	// full algorithm in ARM DDI0403D, page B1-639
+	// this isn't quite complete, but hopefully good enough
+	__asm__ volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
+	if (faultmask) return -1;
+ 5b0:	2001      	movs	r0, #1
+ 5b2:	4240      	negs	r0, r0
+		else priority = NVIC_GET_PRIORITY(ipsr - 16);
+	}
+	__asm__ volatile("mrs %0, basepri\n" : "=r" (basepri)::);
+	if (basepri > 0 && basepri < priority) priority = basepri;
+	return priority;
+}
+ 5b4:	4770      	bx	lr
+ 5b6:	46c0      	nop			; (mov r8, r8)
+ 5b8:	e000e400 	.word	0xe000e400
+
+000005bc <main>:
+
+#define LED  (1U << 5)
+
+extern "C" int main(void)
+{
+    SIM_SCGC5 = SIM_SCGC5_PORTC;
+ 5bc:	2280      	movs	r2, #128	; 0x80
+ 5be:	4b08      	ldr	r3, [pc, #32]	; (5e0 <main+0x24>)
+ 5c0:	0112      	lsls	r2, r2, #4
+ 5c2:	601a      	str	r2, [r3, #0]
+    PORTC_PCR5 = PORT_PCR_MUX(1U);
+ 5c4:	2280      	movs	r2, #128	; 0x80
+ 5c6:	4b07      	ldr	r3, [pc, #28]	; (5e4 <main+0x28>)
+    GPIOC_PDDR |= LED;
+ 5c8:	4907      	ldr	r1, [pc, #28]	; (5e8 <main+0x2c>)
+#define LED  (1U << 5)
+
+extern "C" int main(void)
+{
+    SIM_SCGC5 = SIM_SCGC5_PORTC;
+    PORTC_PCR5 = PORT_PCR_MUX(1U);
+ 5ca:	0052      	lsls	r2, r2, #1
+ 5cc:	601a      	str	r2, [r3, #0]
+    GPIOC_PDDR |= LED;
+ 5ce:	680b      	ldr	r3, [r1, #0]
+ 5d0:	3ae0      	subs	r2, #224	; 0xe0
+ 5d2:	4313      	orrs	r3, r2
+ 5d4:	600b      	str	r3, [r1, #0]
+    GPIOC_PSOR = LED;
+ 5d6:	4b05      	ldr	r3, [pc, #20]	; (5ec <main+0x30>)
+}
+ 5d8:	2000      	movs	r0, #0
+extern "C" int main(void)
+{
+    SIM_SCGC5 = SIM_SCGC5_PORTC;
+    PORTC_PCR5 = PORT_PCR_MUX(1U);
+    GPIOC_PDDR |= LED;
+    GPIOC_PSOR = LED;
+ 5da:	601a      	str	r2, [r3, #0]
+}
+ 5dc:	4770      	bx	lr
+ 5de:	46c0      	nop			; (mov r8, r8)
+ 5e0:	40048038 	.word	0x40048038
+ 5e4:	4004b014 	.word	0x4004b014
+ 5e8:	400ff094 	.word	0x400ff094
+ 5ec:	400ff084 	.word	0x400ff084
+
+000005f0 <__libc_init_array>:
+ 5f0:	4b0e      	ldr	r3, [pc, #56]	; (62c <__libc_init_array+0x3c>)
+ 5f2:	b570      	push	{r4, r5, r6, lr}
+ 5f4:	2500      	movs	r5, #0
+ 5f6:	1c1e      	adds	r6, r3, #0
+ 5f8:	4c0d      	ldr	r4, [pc, #52]	; (630 <__libc_init_array+0x40>)
+ 5fa:	1ae4      	subs	r4, r4, r3
+ 5fc:	10a4      	asrs	r4, r4, #2
+ 5fe:	42a5      	cmp	r5, r4
+ 600:	d004      	beq.n	60c <__libc_init_array+0x1c>
+ 602:	00ab      	lsls	r3, r5, #2
+ 604:	58f3      	ldr	r3, [r6, r3]
+ 606:	4798      	blx	r3
+ 608:	3501      	adds	r5, #1
+ 60a:	e7f8      	b.n	5fe <__libc_init_array+0xe>
+ 60c:	f000 f816 	bl	63c <_init>
+ 610:	4b08      	ldr	r3, [pc, #32]	; (634 <__libc_init_array+0x44>)
+ 612:	2500      	movs	r5, #0
+ 614:	1c1e      	adds	r6, r3, #0
+ 616:	4c08      	ldr	r4, [pc, #32]	; (638 <__libc_init_array+0x48>)
+ 618:	1ae4      	subs	r4, r4, r3
+ 61a:	10a4      	asrs	r4, r4, #2
+ 61c:	42a5      	cmp	r5, r4
+ 61e:	d004      	beq.n	62a <__libc_init_array+0x3a>
+ 620:	00ab      	lsls	r3, r5, #2
+ 622:	58f3      	ldr	r3, [r6, r3]
+ 624:	4798      	blx	r3
+ 626:	3501      	adds	r5, #1
+ 628:	e7f8      	b.n	61c <__libc_init_array+0x2c>
+ 62a:	bd70      	pop	{r4, r5, r6, pc}
+ 62c:	00000648 	.word	0x00000648
+ 630:	00000648 	.word	0x00000648
+ 634:	00000648 	.word	0x00000648
+ 638:	0000064c 	.word	0x0000064c
+
+0000063c <_init>:
+ 63c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 63e:	46c0      	nop			; (mov r8, r8)
+ 640:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 642:	bc08      	pop	{r3}
+ 644:	469e      	mov	lr, r3
+ 646:	4770      	bx	lr
+
+00000648 <__init_array_start>:
+ 648:	00000489 	.word	0x00000489
+
+Disassembly of section .fini:
+
+0000064c <_fini>:
+ 64c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 64e:	46c0      	nop			; (mov r8, r8)

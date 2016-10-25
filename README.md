@@ -39,7 +39,6 @@ The following files were copied from the Teensyduino plugin.
      kinetis.h
      makefile (modified)
      mk20dx128.c (modified)
-     mk20dx128.h
      mkl26z64.ld
 
 - George
