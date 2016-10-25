@@ -34,6 +34,9 @@ For example, with main.cpp the clock line for port c must be enabled
 in order to light the LED.  The toolchain code does not enable
 any clock lines.
 
+The ARM CMSIS library files are also provided.  See main.cpp 
+to enable an example of their use.
+
 The following files were copied from the Teensyduino plugin.
 
      kinetis.h
@@ -41,9 +44,15 @@ The following files were copied from the Teensyduino plugin.
      mk20dx128.c (modified)
      mkl26z64.ld
 
+The following files were copied over from the gcc4mbed repo:
+
+     core_cm0plus.h
+     core_cmFunc.h
+     core_cmInstr.h
+     MKL26Z4.h
+     system_MKL26Z4.h
+
 - George
 
 Copyright (c) 2016 roseengineering 
-
-
 

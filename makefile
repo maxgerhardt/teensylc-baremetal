@@ -75,7 +75,7 @@ $(TARGET).elf: $(OBJS) $(MCU_LD)
 burn: $(TARGET).hex
 	teensy_loader_cli -mmcu=mkl26z64 -w -v $<
 clean:
-	rm -f *.o *.d $(TARGET).elf $(TARGET).hex $(TARGET).lst
+	rm -f *.o *.d $(TARGET).elf $(TARGET).hex 
 zip:
 	zip -FS -r $(PWD) . -x @.gitignore -x '.git/*'
 
