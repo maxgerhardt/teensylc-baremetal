@@ -3,23 +3,10 @@ TARGET = main
 
 # set your MCU type here, or make command line `make MCU=MK20DX256`
 MCU=MKL26Z64
-
-# make it lower case
-LOWER_MCU := $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$(MCU)))))))))))))))))))))))))))
-MCU_LD = $(LOWER_MCU).ld
+MCU_LD = $(MCD).ld
 
 # configurable options
 OPTIONS = -DF_CPU=48000000 -D__$(MCU)__ 
-
-# Other Makefiles and project templates for Teensy 3.x:
-#
-# https://github.com/apmorton/teensy-template
-# https://github.com/xxxajk/Arduino_Makefile_master
-# https://github.com/JonHylands/uCee
-
-#************************************************************************
-# Settings below this point usually do not need to be edited
-#************************************************************************
 
 # CPPFLAGS = compiler options for C and C++
 CPPFLAGS = -nostdlib -Wall -Os -mthumb -g -MMD $(OPTIONS) -I. -mcpu=cortex-m0plus -nostdlib -fsingle-precision-constant 
@@ -73,7 +60,7 @@ $(TARGET).elf: $(OBJS) $(MCU_LD)
 -include $(OBJS:.o=.d)
 
 burn: $(TARGET).hex
-	teensy_loader_cli -mmcu=mkl26z64 -w -v $<
+	teensy_loader_cli -mmcu=$(MCU) -w -v $<
 clean:
 	rm -f *.o *.d $(TARGET).elf $(TARGET).hex 
 zip:

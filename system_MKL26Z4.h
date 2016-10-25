@@ -165,10 +165,9 @@ extern "C" {
 
 /* Define clock source values */
 
-#define CPU_XTAL_CLK_HZ                16000000U            /* Value of the external crystal or oscillator clock frequency of the system oscillator (OSC) in Hz */
+#define CPU_XTAL_CLK_HZ                8000000U            /* Value of the external crystal or oscillator clock frequency of the system oscillator (OSC) in Hz */
 #define CPU_INT_SLOW_CLK_HZ            32768U              /* Value of the slow internal oscillator clock frequency in Hz */
 #define CPU_INT_FAST_CLK_HZ            4000000U            /* Value of the fast internal oscillator clock frequency in Hz */
-#define CLOCK_SETUP                    3
 
 /* RTC oscillator setting */
 
