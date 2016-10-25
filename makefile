@@ -9,7 +9,7 @@ MCU_LD = $(MCU).ld
 OPTIONS = -DF_CPU=48000000 -D__$(MCU)__ 
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -nostdlib -Wall -Os -mthumb -g -MMD $(OPTIONS) -I. -mcpu=cortex-m0plus -nostdlib -fsingle-precision-constant 
+CPPFLAGS = -Wall -Os -mthumb -g -MMD $(OPTIONS) -I. -mcpu=cortex-m0plus -nostdlib -fsingle-precision-constant 
 
 # compiler options for C++ only
 CXXFLAGS = -std=gnu++0x -felide-constructors -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections 
@@ -20,7 +20,7 @@ ASFLAGS = -x assembler-with-cpp
 CFLAGS =
 
 # linker options
-LDFLAGS = -Os -Wl,--gc-sections,--no-wchar-size-warning --specs=nano.specs -mcpu=cortex-m0plus -mthumb -T$(MCU_LD)
+LDFLAGS = -nostartfiles -Os -Wl,--gc-sections,--no-wchar-size-warning --specs=nano.specs -mcpu=cortex-m0plus -mthumb -T$(MCU_LD)
 
 # additional libraries to link
 LIBS = -lm

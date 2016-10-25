@@ -60,6 +60,7 @@ extern unsigned long _ebss;
 void ResetHandler(void);
 extern int main (void);
 
+__attribute__ ((section(".startup")))
 void init_data_bss()
 {
     uint32_t *src = &_etext;
@@ -69,11 +70,13 @@ void init_data_bss()
     while (dest < &_ebss) *dest++ = 0;
 }
 
+__attribute__ ((section(".startup")))
 void fault_isr(void)
 {
 	while (1) ;
 }
 
+__attribute__ ((section(".startup")))
 void unused_isr(void)
 {
 	fault_isr();
@@ -598,6 +601,7 @@ const uint8_t flashconfigbytes[16] = {
 	0xFF, 0xFF, 0xFF, 0xFF, FSEC, FOPT, 0xFF, 0xFF
 };
 
+__attribute__ ((section(".startup")))
 static void startup_default_early_hook(void) {
 #if defined(KINETISK)
 	WDOG_STCTRLH = WDOG_STCTRLH_ALLOWUPDATE;
@@ -605,7 +609,10 @@ static void startup_default_early_hook(void) {
 	SIM_COPC = 0;  // disable the watchdog
 #endif
 }
+
+__attribute__ ((section(".startup")))
 static void startup_default_late_hook(void) {}
+
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
 
