@@ -9,7 +9,7 @@ MCU_LD = $(MCU).ld
 OPTIONS = -DF_CPU=48000000 -D__$(MCU)__ 
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -Wall -Os -mthumb -g -MMD $(OPTIONS) -I. -mcpu=cortex-m0plus -nostdlib -fsingle-precision-constant 
+CPPFLAGS = -Wall -mthumb -g -MMD $(OPTIONS) -I. -mcpu=cortex-m0plus -nostdlib -fsingle-precision-constant
 
 # compiler options for C++ only
 CXXFLAGS = -std=gnu++0x -felide-constructors -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections 
@@ -20,7 +20,7 @@ ASFLAGS = -x assembler-with-cpp
 CFLAGS =
 
 # linker options
-LDFLAGS = -nostartfiles -Os -Wl,--gc-sections,--no-wchar-size-warning --specs=nano.specs -mcpu=cortex-m0plus -mthumb -T$(MCU_LD)
+LDFLAGS = -nostartfiles -Wl,--gc-sections,--no-wchar-size-warning --specs=nano.specs -mcpu=cortex-m0plus -mthumb -T$(MCU_LD)
 
 # additional libraries to link
 LIBS = -lm
@@ -54,7 +54,11 @@ $(TARGET).elf: $(OBJS) $(MCU_LD)
 %.hex: %.elf
 	$(SIZE) $<
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
-	$(OBJDUMP) -S $< > $(TARGET).lst
+	readelf -a $< > $(TARGET).lst
+	$(OBJDUMP) -x -S $< >> $(TARGET).lst
+	$(OBJDUMP) -x -j .data $< >> $(TARGET).lst
+	$(OBJDUMP) -x -j .bss $< >> $(TARGET).lst
+	readelf -x .data $< >> $(TARGET).lst
 
 # compiler generated dependency info
 -include $(OBJS:.o=.d)
@@ -62,8 +66,7 @@ $(TARGET).elf: $(OBJS) $(MCU_LD)
 burn: $(TARGET).hex
 	teensy_loader_cli -mmcu=$(MCU) -w -v $<
 clean:
-	rm -f *.o *.d $(TARGET).elf $(TARGET).hex 
+	rm -f *.o *.d *.elf *.hex *.lst
 zip:
 	zip -FS -r $(PWD) . -x @.gitignore -x '.git/*'
-
 

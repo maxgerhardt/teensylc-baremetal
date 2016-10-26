@@ -196,9 +196,6 @@ void porte_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void portcd_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void software_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 
-__attribute__ ((section(".dmabuffers"), used, aligned(256)))
-void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
-
 __attribute__ ((section(".vectors"), used))
 void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void) =
 {
@@ -264,10 +261,6 @@ const uint8_t flashconfigbytes[16] =
 __attribute__ ((section(".startup")))
 void ResetHandler(void)
 {
-	unsigned int i;
-
-	// programs using the watchdog timer or needing to initialize hardware as
-	// early as possible can implement startup_early_hook()
 	SIM_COPC = 0;  // disable the watchdog
 
 	// release I/O pins hold, if we woke up from VLLS mode
@@ -278,11 +271,6 @@ void ResetHandler(void)
 	SMC_PMPROT = SMC_PMPROT_AVLP | SMC_PMPROT_ALLS | SMC_PMPROT_AVLLS;
     
         init_data_bss();
-
-	// default all interrupts to medium priority level
-	for (i=0; i < NVIC_NUM_INTERRUPTS + 16; i++) _VectorsRam[i] = _VectorsFlash[i];
-	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
-	SCB_VTOR = (uint32_t)_VectorsRam;	// use vector table in RAM
 
 	// hardware always starts in FEI mode
 	//  C1[CLKS] bits are written to 00
@@ -312,16 +300,17 @@ void ResetHandler(void)
 	//  C2[LP] is written to 0
 	// if we need faster than the crystal, turn on the PLL
 
-	MCG_C5 = MCG_C5_PRDIV0(3);		 // config PLL input for 16 MHz Crystal / 4 = 4 MHz
+	// config PLL input for 16 MHz Crystal / 4 = 4 MHz
+	MCG_C5 = MCG_C5_PRDIV0(3);
 
-	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(0); // config PLL for 96 MHz output
+        // config PLL for 96 MHz output
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(0); 
 
 	// wait for PLL to start using xtal as its input
 	while (!(MCG_S & MCG_S_PLLST)) ;
 	// wait for PLL to lock
 	while (!(MCG_S & MCG_S_LOCK0)) ;
 	// now we're in PBE mode
-
 
 	// now program the clock dividers
 	// config divisors: 48 MHz core, 48 MHz bus, 24 MHz flash, USB = 96 / 2

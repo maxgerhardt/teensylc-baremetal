@@ -12,6 +12,7 @@ extern "C" int main(void)
     GPIOC_PDDR |= LED;
     GPIOC_PSOR = LED;
 }
+
 #else
 
 #include "MKL26Z4.h"
