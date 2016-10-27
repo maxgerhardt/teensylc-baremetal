@@ -2,13 +2,13 @@
 Bare-Metal Teensy LC toolchain
 --------------------------------
 
-Type "make" to compile the sample main.cpp program.  Next,
-type "make burn" to load the resulting hex file into your
+Type "make" to compile and link the sample main.cpp program.
+"make burn" will load the resulting main.hex file into your
 Teensy LC using the cli teensy loader.  The program
-turns on the Teensy LC LED.
+turns on your Teensy LC LED.
 
-The makefile will link together all source files (.c, .S, and .cpp)
-found in the working directory into one hex file.  This hex file
+The makefile will compile and link all source files (.c, .S, and .cpp)
+found in the working directory together into one hex file.  This hex file
 is named after the TARGET variable given in the makefile.
 
 A sample main.c version of the main.cpp file in the repo
