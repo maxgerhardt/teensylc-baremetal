@@ -1,3 +1,5 @@
+APPNAME = $(shell basename $(PWD))
+
 # The name of your project (used to name the compiled .hex file)
 TARGET = main
 
@@ -68,5 +70,7 @@ burn: $(TARGET).hex
 clean:
 	rm -f *.o *.d *.elf *.hex *.lst
 zip:
-	zip -FS -r $(PWD) . -x @.gitignore -x '.git/*'
+	(cd ..; \
+        zip -FS -r $(APPNAME) $(APPNAME) \
+        -x @'$(APPNAME)/.gitignore' -x '$(APPNAME)/.git/*')
 
