@@ -5,3 +5,5 @@
 *.elf
 *.swp
 *~
+.pio/
+.vscode/
