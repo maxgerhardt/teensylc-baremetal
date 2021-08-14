@@ -24,20 +24,20 @@ is named after the TARGET variable given in the makefile.
 A sample main.c version of the main.cpp file in the repo
 is given below.
 
+```c
+#include "kinetis.h"
 
-     #include "kinetis.h"
+#define LED  (1U << 5)
 
-     #define LED  (1U << 5)
-
-     int main(void)
-     {
-         SIM_SCGC5 = SIM_SCGC5_PORTC;
-         PORTC_PCR5 = PORT_PCR_MUX(1U);
-         GPIOC_PDDR |= LED;
-         GPIOC_PSOR = LED;
-         return 0;
-     }
-
+int main(void)
+{
+ SIM_SCGC5 = SIM_SCGC5_PORTC;
+ PORTC_PCR5 = PORT_PCR_MUX(1U);
+ GPIOC_PDDR |= LED;
+ GPIOC_PSOR = LED;
+ return 0;
+}
+```
 
 Remember, you must ensure any port used has its clock line enabled. 
 For example, with main.cpp the clock line for port c must be enabled 
