@@ -2,6 +2,14 @@
 Bare-Metal Teensy LC toolchain
 --------------------------------
 
+## Build with PlatformIO 
+
+The project can be build with PlatformIO, e.g. in the VSCode PlatformIO extension or on the CLI with `pio run`. 
+
+Refer to the general documentation at [Getting started with VSCode + PlatformIO](https://docs.platformio.org/en/latest/integration/ide/vscode.html#installation), [CLI reference](https://docs.platformio.org/en/latest/core/index.html) and [platformio.ini options](https://docs.platformio.org/en/latest/projectconf/index.html).  
+
+## Build with Makefile 
+
 Type "make" to compile and link the sample main.cpp program.
 "make burn" will load the resulting main.hex file into your
 Teensy LC using the cli teensy loader.  The program
@@ -10,6 +18,8 @@ turns on your Teensy LC LED.
 The makefile will compile and link all source files (.c, .S, and .cpp)
 found in the working directory together into one hex file.  This hex file
 is named after the TARGET variable given in the makefile.
+
+## Example code
 
 A sample main.c version of the main.cpp file in the repo
 is given below.

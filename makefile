@@ -11,7 +11,7 @@ MCU_LD = $(MCU).ld
 OPTIONS = -DF_CPU=48000000 -D__$(MCU)__ 
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -Wall -mthumb -g -MMD $(OPTIONS) -I. -mcpu=cortex-m0plus -nostdlib -fsingle-precision-constant
+CPPFLAGS = -Wall -mthumb -g -MMD $(OPTIONS) -Iinclude -mcpu=cortex-m0plus -nostdlib -fsingle-precision-constant
 
 # compiler options for C++ only
 CXXFLAGS = -std=gnu++0x -felide-constructors -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections 
@@ -40,9 +40,9 @@ OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 
 # automatically create lists of the sources and objects
-C_FILES := $(wildcard *.c)
-S_FILES := $(wildcard *.S)
-CPP_FILES := $(wildcard *.cpp)
+C_FILES := $(wildcard src/*.c)
+S_FILES := $(wildcard src/*.S)
+CPP_FILES := $(wildcard src/*.cpp)
 
 OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(S_FILES:.S=.o)
 
